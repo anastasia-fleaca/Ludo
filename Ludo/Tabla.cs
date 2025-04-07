@@ -19,6 +19,7 @@ namespace Ludo
             this.BackgroundImageLayout = ImageLayout.Zoom;
             this.WindowState = FormWindowState.Maximized;
             this.ActiveControl = null;
+            this.TopMost = true;
             DeseneazaTabla();
         }
         private void DeseneazaTabla()
@@ -30,11 +31,11 @@ namespace Ludo
             AddBackgroundImage(2, 2, "imagini/CASA_B.png",1);
             AddBackgroundImage(1, 1, "imagini/YELLOW.png", 2);
             AddBackgroundImage(1, 2, "imagini/YELLOW.png", 2); 
-            AddBackgroundImage(2, 1, "imagini/YELLOW.png", 2);
+            AddBackgroundImage(2, 1, "imagini/STAR_Y.png", 2);
             AddBackgroundImage(1, 4, "imagini/YELLOW.png", 2);
             AddBackgroundImage(1, 3, "imagini/YELLOW.png", 2);
             AddBackgroundImage(1, 5, "imagini/YELLOW.png", 2);
-            AddBackgroundImage(4, 2, "imagini/BLUE.png", 5);
+            AddBackgroundImage(4, 2, "imagini/STAR_B.png", 5);
             AddBackgroundImage(0, 1, "imagini/BLUE.png", 5);
             AddBackgroundImage(1, 1, "imagini/BLUE.png", 5);
             AddBackgroundImage(2, 1, "imagini/BLUE.png", 5);
@@ -45,23 +46,76 @@ namespace Ludo
             AddBackgroundImage(3, 1, "imagini/GREEN.png", 4);
             AddBackgroundImage(4, 1, "imagini/GREEN.png", 4);
             AddBackgroundImage(5, 1, "imagini/GREEN.png", 4);
-            AddBackgroundImage(1, 0, "imagini/GREEN.png", 4);
+            AddBackgroundImage(1, 0, "imagini/STAR_G.png", 4);
             AddBackgroundImage(1, 1, "imagini/RED.png", 3);
             AddBackgroundImage(1, 2, "imagini/RED.png", 3);
             AddBackgroundImage(1, 3, "imagini/RED.png", 3);
             AddBackgroundImage(1, 4, "imagini/RED.png", 3);
             AddBackgroundImage(1, 0, "imagini/RED.png", 3);
-            AddBackgroundImage(0, 4, "imagini/RED.png", 3);
+            AddBackgroundImage(0, 4, "imagini/STAR_R.png", 3);
+            AddBackgroundImage(1, 5, "imagini/ARROW_R.png", 3);
+            AddBackgroundImage(5, 1, "imagini/ARROW_B.png", 5);
+            AddBackgroundImage(0, 1, "imagini/ARROW_G.png", 4);
+            AddBackgroundImage(1, 0, "imagini/ARROW_Y.png", 2);
+            AddBackgroundImage(0, 2, "imagini/STAR.png", 2);
+            AddBackgroundImage(3, 0, "imagini/STAR.png", 5);
+            AddBackgroundImage(2, 2, "imagini/STAR.png", 4);
+            AddBackgroundImage(2, 3, "imagini/STAR.png", 3);
+            for (int row = 0; row < tableLayoutPanel2.RowCount; row++)
+            {
+                for (int col = 0; col < tableLayoutPanel2.ColumnCount; col++)
+                {
+                    var control = tableLayoutPanel2.GetControlFromPosition(col, row);
+                    if (control == null)
+                    {
+                        AddBackgroundImage(col, row, "imagini/WHITE.png", 2);
+                    }
+                }
+            }
+            for (int row = 0; row < tableLayoutPanel3.RowCount; row++)
+            {
+                for (int col = 0; col < tableLayoutPanel3.ColumnCount; col++)
+                {
+                    var control = tableLayoutPanel3.GetControlFromPosition(col, row);
+                    if (control == null)
+                    {
+                        AddBackgroundImage(col, row, "imagini/WHITE.png", 3);
+                    }
+                }
+            }
+            for (int row = 0; row < tableLayoutPanel4.RowCount; row++)
+            {
+                for (int col = 0; col < tableLayoutPanel4.ColumnCount; col++)
+                {
+                    var control = tableLayoutPanel4.GetControlFromPosition(col, row);
+                    if (control == null)
+                    {
+                        AddBackgroundImage(col, row, "imagini/WHITE.png", 4);
+                    }
+                }
+            }
+            for (int row = 0; row < tableLayoutPanel5.RowCount; row++)
+            {
+                for (int col = 0; col < tableLayoutPanel5.ColumnCount; col++)
+                {
+                    var control = tableLayoutPanel5.GetControlFromPosition(col, row);
+                    if (control == null)
+                    {
+                        AddBackgroundImage(col, row, "imagini/WHITE.png", 5);
+                    }
+                }
+            }
         }
+
         private void AddBackgroundImage(int column, int row, string poza, int i)
         {
             PictureBox casa = new PictureBox();
             casa.Dock = DockStyle.Fill;
-            casa.SizeMode = PictureBoxSizeMode.Zoom;
+            casa.SizeMode = PictureBoxSizeMode.StretchImage;
             casa.Margin = new Padding(0);
             casa.Paint += (s, e) =>
             {
-                Color borderColor = Color.FromArgb(5a3731); 
+                Color borderColor = Color.FromArgb(90, 55, 49); 
                 int thickness = 2; 
                 using (Pen p = new Pen(borderColor, thickness))
                 {

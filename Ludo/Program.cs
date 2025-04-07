@@ -16,7 +16,7 @@ namespace Ludo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Tabla());
+            Application.Run(new Form1());
         }
     }
 }

@@ -20,6 +20,7 @@ namespace Ludo
             this.WindowState = FormWindowState.Maximized;
             this.ActiveControl = null;
             button1.TabStop = false;
+            this.TopMost = true;
         }
         private void RepozitioneazaButon()
         {
