@@ -12,25 +12,41 @@ namespace Ludo
 {
     public partial class Tabla : Form
     {
-        public Tabla()
+        public Tabla(string p1, string p2, string p3, string p4)
         {
             InitializeComponent();
             this.BackgroundImage = Image.FromFile("imagini/TABLA.png");
-            this.BackgroundImageLayout = ImageLayout.Zoom;
+            this.BackgroundImageLayout = ImageLayout.Stretch;
             this.WindowState = FormWindowState.Maximized;
-            this.ActiveControl = null;
             this.TopMost = true;
+            this.ActiveControl = null;
             DeseneazaTabla();
+            float relX1 = 0.14f;
+            float relY1 = 0.22f;
+            float relX2 = 1.5f;
+            float relY2 = 1f;
+            int newX1 = (int)(this.ClientSize.Width * relX1);
+            int newY1 = (int)(this.ClientSize.Height * relY1);
+            int newX2 = (int)(this.ClientSize.Width * relX2);
+            int newY2 = (int)(this.ClientSize.Height * relY2); 
+            label1.Location = new Point(newX1, newY1);
+            label2.Location = new Point(newX1, newY2);
+            label3.Location = new Point(newX2, newY1);
+            label4.Location = new Point(newX2, newY2);
+            label1.Text = "☻"+p1;
+            label2.Text = "☻" + p2;
+            label3.Text = "☻" + p3;
+            label4.Text = "☻" + p4;
         }
         private void DeseneazaTabla()
         {
-            AddBackgroundImage(1, 1, "imagini/CASA.png",1);
-            AddBackgroundImage(0, 0, "imagini/CASA_G.png",1);
-            AddBackgroundImage(2, 0, "imagini/CASA_Y.png",1);
-            AddBackgroundImage(0, 2, "imagini/CASA_R.png",1);
-            AddBackgroundImage(2, 2, "imagini/CASA_B.png",1);
+            AddBackgroundImage(1, 1, "imagini/CASA.png", 1);
+            AddBackgroundImage(0, 0, "imagini/CASA_G.png", 1);
+            AddBackgroundImage(2, 0, "imagini/CASA_Y.png", 1);
+            AddBackgroundImage(0, 2, "imagini/CASA_R.png", 1);
+            AddBackgroundImage(2, 2, "imagini/CASA_B.png", 1);
             AddBackgroundImage(1, 1, "imagini/YELLOW.png", 2);
-            AddBackgroundImage(1, 2, "imagini/YELLOW.png", 2); 
+            AddBackgroundImage(1, 2, "imagini/YELLOW.png", 2);
             AddBackgroundImage(2, 1, "imagini/STAR_Y.png", 2);
             AddBackgroundImage(1, 4, "imagini/YELLOW.png", 2);
             AddBackgroundImage(1, 3, "imagini/YELLOW.png", 2);
@@ -115,8 +131,8 @@ namespace Ludo
             casa.Margin = new Padding(0);
             casa.Paint += (s, e) =>
             {
-                Color borderColor = Color.FromArgb(90, 55, 49); 
-                int thickness = 2; 
+                Color borderColor = Color.FromArgb(90, 55, 49);
+                int thickness = 2;
                 using (Pen p = new Pen(borderColor, thickness))
                 {
                     e.Graphics.DrawRectangle(p, thickness / 2, thickness / 2,

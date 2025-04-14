@@ -33,6 +33,10 @@
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -145,12 +149,60 @@
             this.tableLayoutPanel4.Size = new System.Drawing.Size(200, 100);
             this.tableLayoutPanel4.TabIndex = 8;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Franklin Gothic Heavy", 28.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(87)))), ((int)(((byte)(113)))), ((int)(((byte)(55)))));
+            this.label1.Location = new System.Drawing.Point(35, 49);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(403, 54);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "☻ Abcdefghijklm";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Franklin Gothic Heavy", 28.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(85)))), ((int)(((byte)(37)))));
+            this.label2.Location = new System.Drawing.Point(337, 401);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(403, 54);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "☻ Abcdefghijklm";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Franklin Gothic Heavy", 28.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(190)))), ((int)(((byte)(2)))));
+            this.label3.Location = new System.Drawing.Point(531, 103);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(403, 54);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "☻ Abcdefghijklm";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Franklin Gothic Heavy", 28.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(78)))), ((int)(((byte)(143)))));
+            this.label4.Location = new System.Drawing.Point(482, 291);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(403, 54);
+            this.label4.TabIndex = 4;
+            this.label4.Text = "☻ Abcdefghijklm";
+            // 
             // Tabla
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(243)))), ((int)(((byte)(228)))));
-            this.ClientSize = new System.Drawing.Size(827, 581);
+            this.ClientSize = new System.Drawing.Size(1018, 857);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.tableLayoutPanel1);
             this.MaximizeBox = false;
             this.Name = "Tabla";
@@ -159,6 +211,7 @@
             this.Resize += new System.EventHandler(this.Tabla_Resize);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -169,5 +222,9 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
     }
 }

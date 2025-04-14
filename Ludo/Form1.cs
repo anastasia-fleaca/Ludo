@@ -48,7 +48,9 @@ namespace Ludo
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            this.Hide();
+            Players players = new Players();
+            players.Show();
         }
     }
 }
