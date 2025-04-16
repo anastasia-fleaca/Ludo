@@ -63,7 +63,7 @@ namespace Ludo
             }
             else
             {
-                MessageBox.Show("Please make sure all the players chose a username");
+                MessageBox.Show("Toti jucatorii trebuie sa isi aleaga un nume.");
             }
         }
     }
