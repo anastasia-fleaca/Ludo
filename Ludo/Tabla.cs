@@ -89,12 +89,8 @@ namespace Ludo
                 }
             }
             for (int row = 0; row < tableLayoutPanel3.RowCount; row++)
-            {
                 for (int col = 0; col < tableLayoutPanel3.ColumnCount; col++)
-                {
-                    var control = tableLayoutPanel3.GetControlFromPosition(col, row);
-                    if (control == null)
-                    {
+                    if (tableLayoutPanel3.GetControlFromPosition(col, row) == null)
                         AddBackgroundImage(col, row, "imagini/WHITE.png", 3);
                     }
                 }
