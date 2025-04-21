@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Ludo.Tabla;
 
 namespace Ludo
 {
@@ -74,6 +75,36 @@ namespace Ludo
                     }
                 }
             }
+        }
+        public List<PathSquare> GetPawnPath()
+        {
+            var path = new List<PathSquare>();
+
+            // tableLayoutPanel2 path
+            var p2 = panels[1];
+            path.Add(new PathSquare(p2, 0, 5));
+            path.Add(new PathSquare(p2, 0, 0));
+            path.Add(new PathSquare(p2, 2, 0));
+            path.Add(new PathSquare(p2, 2, 5));
+            var p5 = panels[4];
+            path.Add(new PathSquare(p5, 0, 0));
+            path.Add(new PathSquare(p5, 5, 0));
+            path.Add(new PathSquare(p5, 5, 2));
+            path.Add(new PathSquare(p5, 0, 2));
+            var p3 = panels[2];
+            path.Add(new PathSquare(p3, 2, 0));
+            path.Add(new PathSquare(p3, 2, 5));
+            path.Add(new PathSquare(p3, 0, 5));
+            path.Add(new PathSquare(p3, 0, 0));
+
+            // tableLayoutPanel4 path
+            var p4 = panels[3];
+            path.Add(new PathSquare(p4, 5, 2));
+            path.Add(new PathSquare(p4, 0, 2));
+            path.Add(new PathSquare(p4, 0, 0));
+            path.Add(new PathSquare(p4, 5, 0));
+
+            return path;
         }
 
         public void AddBackgroundImage(int column, int row, string file, int panelIndex)
