@@ -13,6 +13,7 @@ namespace Ludo
     {
         private Form parent;
         private TableLayoutPanel[] panels;
+        public Dictionary<string, List<PictureBox>> pawnsByColor = new Dictionary<string, List<PictureBox>>();
 
         public AfisareTabla(Form form, params TableLayoutPanel[] tablePanels)
         {
@@ -79,8 +80,6 @@ namespace Ludo
         public List<PathSquare> GetPawnPath()
         {
             var path = new List<PathSquare>();
-
-            // tableLayoutPanel2 path
             var p2 = panels[1];
             path.Add(new PathSquare(p2, 0, 5));
             path.Add(new PathSquare(p2, 0, 0));
@@ -130,15 +129,21 @@ namespace Ludo
             panels[panelIndex - 1].Controls.Add(pictureBox, column, row);
         }
 
-        public void Add4ChildPictureBoxes(PictureBox parent, char c)
+        public void Add4ChildPictureBoxes(PictureBox parent, char colorChar)
         {
+            string color = colorChar.ToString(); // e.g., "R", "G", "B", "Y"
+
+            if (!pawnsByColor.ContainsKey(color))
+                pawnsByColor[color] = new List<PictureBox>();
+
             for (int i = 0; i < 4; i++)
             {
                 PictureBox pawn = new PictureBox();
                 pawn.SizeMode = PictureBoxSizeMode.Zoom;
-                pawn.Image = Image.FromFile("imagini/PAWN_" + c + ".png");
+                pawn.Image = Image.FromFile($"imagini/PAWN_{colorChar}.png");
                 pawn.BackColor = Color.Transparent;
                 parent.Controls.Add(pawn);
+                pawnsByColor[color].Add(pawn); // <--- Save pawn!
             }
 
             parent.Resize += delegate (object sender, EventArgs e)
@@ -157,6 +162,7 @@ namespace Ludo
                 }
             };
         }
+
 
         public void RepozitioneazaTabla()
         {
@@ -209,6 +215,17 @@ namespace Ludo
             int newH = (int)(parent.ClientSize.Width * buttonH);
             button1.Size = new Size(newW, newH);
         }
+
+        public string GetPawnColor(PictureBox pawn)
+        {
+            foreach (var kvp in pawnsByColor)
+            {
+                if (kvp.Value.Contains(pawn))
+                    return kvp.Key;
+            }
+            return null;
+        }
+
 
     }
 }
