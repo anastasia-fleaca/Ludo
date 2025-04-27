@@ -114,7 +114,6 @@ namespace Ludo
         {
             timer.Stop();
 
-            // Find the image and get the value
             foreach (var (value, image) in diceFaces)
             {
                 if (pictureBox.Image == image)

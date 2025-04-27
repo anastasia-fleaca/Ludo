@@ -81,29 +81,73 @@ namespace Ludo
         {
             var path = new List<PathSquare>();
             var p2 = panels[1];
-            path.Add(new PathSquare(p2, 0, 5));
-            path.Add(new PathSquare(p2, 0, 0));
+            var p5 = panels[4]; 
+            var p3 = panels[2]; 
+            var p4 = panels[3]; 
+            path.Add(new PathSquare(p2, 5, 0));
+            path.Add(new PathSquare(p2, 4, 0)); 
+            path.Add(new PathSquare(p2, 3, 0)); 
             path.Add(new PathSquare(p2, 2, 0));
-            path.Add(new PathSquare(p2, 2, 5));
-            var p5 = panels[4];
+            path.Add(new PathSquare(p2, 1, 0));
+            path.Add(new PathSquare(p2, 0, 0));
+            path.Add(new PathSquare(p2, 0, 1));
+            path.Add(new PathSquare(p2, 0, 2));
+            path.Add(new PathSquare(p2, 1, 2, "Y"));
+            path.Add(new PathSquare(p2, 2, 2));
+            path.Add(new PathSquare(p2, 3, 2));
+            path.Add(new PathSquare(p2, 4, 2));
+            path.Add(new PathSquare(p2, 5, 2));
             path.Add(new PathSquare(p5, 0, 0));
-            path.Add(new PathSquare(p5, 5, 0));
-            path.Add(new PathSquare(p5, 5, 2));
+            path.Add(new PathSquare(p5, 0, 1)); 
             path.Add(new PathSquare(p5, 0, 2));
-            var p3 = panels[2];
+            path.Add(new PathSquare(p5, 0, 3));
+            path.Add(new PathSquare(p5, 0, 4));
+            path.Add(new PathSquare(p5, 0, 5));
+            path.Add(new PathSquare(p5, 1, 5));
+            path.Add(new PathSquare(p5, 2, 5));
+            path.Add(new PathSquare(p5, 2, 4, "B"));
+            path.Add(new PathSquare(p5, 2, 3));
+            path.Add(new PathSquare(p5, 2, 2));
+            path.Add(new PathSquare(p5, 2, 1));
+            path.Add(new PathSquare(p5, 2, 0));
+            path.Add(new PathSquare(p3, 0, 2)); 
+            path.Add(new PathSquare(p3, 1, 2));
+            path.Add(new PathSquare(p3, 2, 2));
+            path.Add(new PathSquare(p3, 3, 2));
+            path.Add(new PathSquare(p3, 4, 2));
+            path.Add(new PathSquare(p3, 5, 2));
+            path.Add(new PathSquare(p3, 5, 1));
+            path.Add(new PathSquare(p3, 5, 0));
+            path.Add(new PathSquare(p3, 4, 0, "R"));
+            path.Add(new PathSquare(p3, 3, 0));
             path.Add(new PathSquare(p3, 2, 0));
-            path.Add(new PathSquare(p3, 2, 5));
-            path.Add(new PathSquare(p3, 0, 5));
+            path.Add(new PathSquare(p3, 1, 0));
             path.Add(new PathSquare(p3, 0, 0));
-
-            // tableLayoutPanel4 path
-            var p4 = panels[3];
-            path.Add(new PathSquare(p4, 5, 2));
-            path.Add(new PathSquare(p4, 0, 2));
+            path.Add(new PathSquare(p4, 2, 5));
+            path.Add(new PathSquare(p4, 2, 4));
+            path.Add(new PathSquare(p4, 2, 3)); 
+            path.Add(new PathSquare(p4, 2, 2));
+            path.Add(new PathSquare(p4, 2, 1));
+            path.Add(new PathSquare(p4, 2, 0));
+            path.Add(new PathSquare(p4, 1, 0));
             path.Add(new PathSquare(p4, 0, 0));
-            path.Add(new PathSquare(p4, 5, 0));
-
+            path.Add(new PathSquare(p4, 0, 1, "G"));
+            path.Add(new PathSquare(p4, 0, 2));
+            path.Add(new PathSquare(p4, 0, 3));
+            path.Add(new PathSquare(p4, 0, 4));
+            path.Add(new PathSquare(p4, 0, 5));
             return path;
+        }
+        public int GetStartPositionForColor(string color)
+        {
+            switch (color.ToUpper())
+            {
+                case "Y": return 8;   
+                case "B": return 21;  
+                case "R": return 34;  
+                case "G": return 47;  
+                default: return 0;
+            }
         }
 
         public void AddBackgroundImage(int column, int row, string file, int panelIndex)
@@ -143,7 +187,7 @@ namespace Ludo
                 pawn.Image = Image.FromFile($"imagini/PAWN_{colorChar}.png");
                 pawn.BackColor = Color.Transparent;
                 parent.Controls.Add(pawn);
-                pawnsByColor[color].Add(pawn); // <--- Save pawn!
+                pawnsByColor[color].Add(pawn); 
             }
 
             parent.Resize += delegate (object sender, EventArgs e)

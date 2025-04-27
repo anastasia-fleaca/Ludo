@@ -12,18 +12,20 @@ namespace Ludo
         private Timer doubleClickTimer;
 
         private AfisareTabla graphicsManager;
-        private bool isRolling = false; 
-        private bool movePending = false; 
+        private bool isRolling = false;
+        private bool movePending = false;
         private string[] playerNames;
         private int currentPlayerIndex = 0;
         private DateTime lastClickTime = DateTime.MinValue;
         private const int doubleClickThreshold = 1000;
         private List<PathSquare> pawnPath;
+        private Dictionary<PictureBox, int> pawnPositions = new Dictionary<PictureBox, int>();
+
         public Tabla(string p1, string p2, string p3, string p4)
         {
             InitializeComponent();
             doubleClickTimer = new Timer();
-            doubleClickTimer.Interval = doubleClickThreshold; // 500 ms
+            doubleClickTimer.Interval = doubleClickThreshold;
             doubleClickTimer.Tick += DoubleClickTimer_Tick;
             button1.EnabledChanged += button1_EnabledChanged;
             this.BackgroundImage = Image.FromFile("imagini/TABLA.png");
@@ -31,7 +33,7 @@ namespace Ludo
             this.WindowState = FormWindowState.Maximized;
             this.TopMost = true;
             this.ActiveControl = null;
-            button1.BackColor = Color.White; // Or whatever background color you want
+            button1.BackColor = Color.White;
             button1.ForeColor = Color.Black;
             playerNames = new string[] { p1, p2, p3, p4 };
 
@@ -41,61 +43,144 @@ namespace Ludo
             diceAnimator.DiceRollCompleted += result =>
             {
                 isRolling = false;
-                button1.Enabled = false; // After rolling, disable the dice button
+                button1.Enabled = false; 
 
                 string currentPlayerColor = GetCurrentPlayerColor();
                 movePending = true;
 
-                if (result == 6)
+                var movablePawns = GetMovablePawns(currentPlayerColor, result);
+
+                if (movablePawns.Count > 0)
                 {
-                    EnablePawnSelection(currentPlayerColor);
-                    // Wait for player to click a pawn
+                    EnablePawnSelection(movablePawns);
+                    movePending = true;
                 }
                 else
                 {
-                        movePending = false;
-                        EndTurn(); // No moves possible, automatically end turn
-                   
+                    movePending = false;
+                    EndTurn();
                 }
             };
+
 
             graphicsManager.DeseneazaTabla();
             graphicsManager.PozitioneazaLabeluriSiButon(label1, label2, label3, label4, button1, p1, p2, p3, p4);
 
             HighlightCurrentPlayer();
         }
+        private List<PictureBox> GetMovablePawns(string color, int diceResult)
+        {
+            List<PictureBox> movable = new List<PictureBox>();
+
+            if (graphicsManager.pawnsByColor.ContainsKey(color))
+            {
+                foreach (var pawn in graphicsManager.pawnsByColor[color])
+                {
+                    if (!pawnPositions.ContainsKey(pawn))
+                    {
+                        if (diceResult == 6)
+                        {
+                            movable.Add(pawn);
+                        }
+                    }
+                    else
+                    {
+                        int currentPos = pawnPositions[pawn];
+                        if (currentPos + diceResult < pawnPath.Count)
+                        {
+                            movable.Add(pawn);
+                        }
+                    }
+                }
+            }
+
+            return movable;
+        }
+
+        private void EnablePawnSelection(List<PictureBox> movablePawns)
+        {
+            foreach (var pawn in movablePawns)
+            {
+                pawn.Cursor = Cursors.Hand;
+                pawn.Click += Pawn_Click;
+            }
+        }
+        private void MovePawnForward(PictureBox pawn, int steps)
+        {
+            if (!pawnPositions.ContainsKey(pawn))
+            {
+                return;
+            }
+
+            int currentPos = pawnPositions[pawn];
+            int newPos = currentPos + steps;
+
+            int totalPositions = pawnPath.Count;
+            if (newPos >= totalPositions)
+            {
+                newPos = totalPositions - 1;
+
+            }
+
+            var pathSquare = pawnPath[newPos];
+
+            if (pawn.Parent != null)
+            {
+                pawn.Parent.Controls.Remove(pawn);
+            }
+
+            Control container = pathSquare.Panel.GetControlFromPosition(pathSquare.Column, pathSquare.Row);
+            if (container is PictureBox backgroundPicture)
+            {
+                backgroundPicture.Controls.Add(pawn);
+                pawn.Dock = DockStyle.None;
+                pawn.SizeMode = PictureBoxSizeMode.Zoom;
+                pawn.Size = new Size(30, 30);
+                pawn.Location = new Point(
+                    (backgroundPicture.Width - pawn.Width) / 2,
+                    (backgroundPicture.Height - pawn.Height) / 2
+                );
+                pawn.BringToFront();
+            }
+
+            pawnPositions[pawn] = newPos;
+        }
+
         public class PathSquare
         {
             public TableLayoutPanel Panel { get; set; }
             public int Row { get; set; }
             public int Column { get; set; }
+            public string Color { get; set; }  
 
-            public PathSquare(TableLayoutPanel panel, int row, int column)
+            public PathSquare(TableLayoutPanel panel, int row, int column, string color = "")
             {
                 Panel = panel;
                 Row = row;
                 Column = column;
+                Color = color;
             }
         }
+
         private string GetCurrentPlayerColor()
         {
             switch (currentPlayerIndex)
             {
-                case 0: return "G"; 
-                case 1: return "R"; 
-                case 2: return "Y"; 
-                case 3: return "B"; 
-                default: return "G"; 
+                case 0: return "G";
+                case 1: return "R";
+                case 2: return "Y";
+                case 3: return "B";
+                default: return "G";
             }
         }
+
         private void EndTurn()
         {
             currentPlayerIndex = (currentPlayerIndex + 1) % playerNames.Length;
             HighlightCurrentPlayer();
 
-            button1.Enabled = true; // Allow next player to roll dice
+            button1.Enabled = true;
         }
-
 
         private void HighlightCurrentPlayer()
         {
@@ -120,6 +205,7 @@ namespace Ludo
                     break;
             }
         }
+
         private void ButtonRollDice_Click(object sender, EventArgs e)
         {
             DateTime now = DateTime.Now;
@@ -129,28 +215,28 @@ namespace Ludo
                 if ((now - lastClickTime).TotalMilliseconds <= doubleClickThreshold)
                 {
                     diceAnimator.SkipAnimation();
-                    doubleClickTimer.Stop(); // If skipped, stop timer
+                    doubleClickTimer.Stop();
                 }
             }
             else
             {
                 isRolling = true;
                 movePending = false;
-                button1.Enabled = true; // Keep enabled for possible double click
+                button1.Enabled = true;
                 diceAnimator.Start();
-                doubleClickTimer.Start(); // Start waiting for possible double click
+                doubleClickTimer.Start();
             }
             lastClickTime = now;
         }
+
         private void DoubleClickTimer_Tick(object sender, EventArgs e)
         {
             doubleClickTimer.Stop();
             if (isRolling)
             {
-                button1.Enabled = false; // Disable after double click timeout
+                button1.Enabled = false;
             }
         }
-
 
         private void EnablePawnSelection(string color)
         {
@@ -158,7 +244,7 @@ namespace Ludo
             {
                 foreach (var pawn in graphicsManager.pawnsByColor[color])
                 {
-                    if (pawn.Parent != null && pawn.Parent.Parent is TableLayoutPanel) // Still at home
+                    if (pawn.Parent != null && pawn.Parent.Parent is TableLayoutPanel)
                     {
                         pawn.Cursor = Cursors.Hand;
                         pawn.Click += Pawn_Click;
@@ -183,87 +269,118 @@ namespace Ludo
         {
             if (sender is PictureBox pawn)
             {
-                MoveSelectedPawnToStart(pawn);
+                int steps = diceAnimator.LastRolledValue;
+
+                if (!pawnPositions.ContainsKey(pawn) && steps == 6)
+                {
+                    MoveSelectedPawnToStart(pawn);
+                }
+                else if (pawnPositions.ContainsKey(pawn))
+                {
+                    MovePawnForward(pawn, steps);
+                }
+
                 DisablePawnSelection();
                 movePending = false;
                 EndTurn();
             }
         }
+
+
+
+
+
         private void button1_EnabledChanged(object sender, EventArgs e)
         {
             if (button1.Enabled)
             {
-                button1.ForeColor = Color.Black; 
+                button1.ForeColor = Color.Black;
             }
             else
             {
                 button1.ForeColor = Color.FromArgb(220, 220, 220);
             }
         }
-
         private void MoveSelectedPawnToStart(PictureBox pawn)
         {
             string color = graphicsManager.GetPawnColor(pawn);
-
             if (string.IsNullOrEmpty(color))
                 return;
 
-            TableLayoutPanel targetPanel = null;
-            int targetColumn = 0, targetRow = 0;
-
-            switch (color.ToLower())
+            int startPosition = graphicsManager.GetStartPositionForColor(color);
+            if (startPosition < 0 || startPosition >= pawnPath.Count)
             {
-                case "r":
-                    targetPanel = tableLayoutPanel3;
-                    targetColumn = 0;
-                    targetRow = 4;
-                    break;
-                case "b":
-                    targetPanel = tableLayoutPanel5;
-                    targetColumn = 4;
-                    targetRow = 2;
-                    break;
-                case "y":
-                    targetPanel = tableLayoutPanel2;
-                    targetColumn = 2;
-                    targetRow = 1;
-                    break;
-                case "g":
-                    targetPanel = tableLayoutPanel4;
-                    targetColumn = 1;
-                    targetRow = 0;
-                    break;
-                default:
-                    return;
+                Console.WriteLine($"Invalid start position {startPosition} for color {color}");
+                return;
             }
+
+            var pathSquare = pawnPath[startPosition];
 
             if (pawn.Parent != null)
                 pawn.Parent.Controls.Remove(pawn);
 
-            if (targetPanel != null)
+            Control container = pathSquare.Panel.GetControlFromPosition(pathSquare.Column, pathSquare.Row);
+            if (container is PictureBox backgroundPicture)
             {
-                Control container = targetPanel.GetControlFromPosition(targetColumn, targetRow);
-                if (container is PictureBox backgroundPicture)
-                {
-                    backgroundPicture.Controls.Add(pawn);
+                backgroundPicture.Controls.Add(pawn);
+                pawn.Dock = DockStyle.None;
+                pawn.SizeMode = PictureBoxSizeMode.Zoom;
+                pawn.Size = new Size(30, 30);
+                pawn.Location = new Point(
+                    (backgroundPicture.Width - pawn.Width) / 2,
+                    (backgroundPicture.Height - pawn.Height) / 2
+                );
+                pawn.BringToFront();
 
-                    pawn.Dock = DockStyle.None;
-                    pawn.SizeMode = PictureBoxSizeMode.Zoom;
-                    pawn.Size = new Size(30, 30);
-                    pawn.Location = new Point(
-                        (backgroundPicture.Width - pawn.Width) / 2,
-                        (backgroundPicture.Height - pawn.Height) / 2
-                    );
-                    pawn.BringToFront();
-                }
+                pawnPositions[pawn] = startPosition;
+                Console.WriteLine($"Moved {color} pawn to position {startPosition}");
             }
         }
-
+        private int FindPositionInPath(TableLayoutPanel panel, int column, int row)
+        {
+            for (int i = 0; i < pawnPath.Count; i++)
+            {
+                if (pawnPath[i].Panel == panel &&
+                    pawnPath[i].Column == column &&
+                    pawnPath[i].Row == row)
+                {
+                    return i;
+                }
+            }
+            return -1; 
+        }
         private void Tabla_Load(object sender, EventArgs e)
         {
             graphicsManager.RepozitioneazaTabla();
             pawnPath = graphicsManager.GetPawnPath();
         }
+
+        private void MovePawnToSquare(PictureBox pawn, Panel square)
+        {
+            if (pawn.Parent != null)
+            {
+                pawn.Parent.Controls.Remove(pawn);
+            }
+
+            if (square != null)
+            {
+
+                square.Controls.Add(pawn);
+
+                pawn.Dock = DockStyle.None;
+                pawn.SizeMode = PictureBoxSizeMode.Zoom;
+                pawn.Size = new Size(30, 30);
+                pawn.Location = new Point(
+                    (square.Width - pawn.Width) / 2,
+                    (square.Height - pawn.Height) / 2
+                );
+                pawn.BringToFront();
+            }
+            else
+            {
+                Console.WriteLine("Error: Target square is null.");
+            }
+        }
+
     }
 }
-
