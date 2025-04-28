@@ -43,25 +43,26 @@ namespace Ludo
             diceAnimator.DiceRollCompleted += result =>
             {
                 isRolling = false;
-                button1.Enabled = false; 
+                button1.Enabled = false; // Always disable initially
 
                 string currentPlayerColor = GetCurrentPlayerColor();
-                movePending = true;
-
                 var movablePawns = GetMovablePawns(currentPlayerColor, result);
 
                 if (movablePawns.Count > 0)
                 {
                     EnablePawnSelection(movablePawns);
                     movePending = true;
+
+                    // Keep button disabled while selecting pawn
+                    button1.Enabled = false;
                 }
                 else
                 {
-                    movePending = false;
-                    EndTurn();
+                    // Only enable for another roll if it's a 6 with no moves
+                    button1.Enabled = (result == 6);
+                    if (result != 6) EndTurn();
                 }
             };
-
 
             graphicsManager.DeseneazaTabla();
             graphicsManager.PozitioneazaLabeluriSiButon(label1, label2, label3, label4, button1, p1, p2, p3, p4);
@@ -85,11 +86,9 @@ namespace Ludo
                     }
                     else
                     {
-                        int currentPos = pawnPositions[pawn];
-                        if (currentPos + diceResult < pawnPath.Count)
-                        {
+                       
                             movable.Add(pawn);
-                        }
+                        
                     }
                 }
             }
@@ -113,7 +112,7 @@ namespace Ludo
             }
 
             int currentPos = pawnPositions[pawn];
-            int newPos = currentPos + steps;
+            int newPos = (currentPos + steps)% pawnPath.Count;
 
             int totalPositions = pawnPath.Count;
             if (newPos >= totalPositions)
@@ -264,7 +263,6 @@ namespace Ludo
                 }
             }
         }
-
         private void Pawn_Click(object sender, EventArgs e)
         {
             if (sender is PictureBox pawn)
@@ -282,14 +280,28 @@ namespace Ludo
 
                 DisablePawnSelection();
                 movePending = false;
-                EndTurn();
+
+                // Handle 6-roll special case
+                if (steps == 6)
+                {
+                    // Only enable if there are possible moves
+                    string color = GetCurrentPlayerColor();
+                    bool hasMoves = GetMovablePawns(color, 6).Count > 0 || HasPawnsInHome(color);
+                    button1.Enabled = hasMoves;
+
+                    if (!hasMoves) EndTurn();
+                }
+                else
+                {
+                    EndTurn();
+                }
             }
         }
-
-
-
-
-
+        private bool HasPawnsInHome(string color)
+        {
+            return graphicsManager.pawnsByColor[color]
+                   .Any(p => !pawnPositions.ContainsKey(p));
+        }
         private void button1_EnabledChanged(object sender, EventArgs e)
         {
             if (button1.Enabled)

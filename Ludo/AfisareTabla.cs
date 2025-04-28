@@ -89,6 +89,7 @@ namespace Ludo
             path.Add(new PathSquare(p2, 3, 0)); 
             path.Add(new PathSquare(p2, 2, 0));
             path.Add(new PathSquare(p2, 1, 0));
+
             path.Add(new PathSquare(p2, 0, 0));
             path.Add(new PathSquare(p2, 0, 1));
             path.Add(new PathSquare(p2, 0, 2));
