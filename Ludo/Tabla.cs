@@ -18,8 +18,17 @@ namespace Ludo
         private int currentPlayerIndex = 0;
         private DateTime lastClickTime = DateTime.MinValue;
         private const int doubleClickThreshold = 1000;
-        private List<PathSquare> pawnPath;
+        private Dictionary<PictureBox, List<PathSquare>> pawnPaths = new Dictionary<PictureBox, List<PathSquare>>();
+
         private Dictionary<PictureBox, int> pawnPositions = new Dictionary<PictureBox, int>();
+        Dictionary<string, int> pawnsFinished = new Dictionary<string, int>()
+{
+    { "Y", 0 },
+    { "B", 0 },
+    { "R", 0 },
+    { "G", 0 }
+};
+        List<string> winners = new List<string>(); // e.g., [ "R", "Y", "G", "B" ]
 
         public Tabla(string p1, string p2, string p3, string p4)
         {
@@ -56,12 +65,26 @@ namespace Ludo
                     // Keep button disabled while selecting pawn
                     button1.Enabled = false;
                 }
-                else
-                {
+               
                     // Only enable for another roll if it's a 6 with no moves
-                    button1.Enabled = (result == 6);
-                    if (result != 6) EndTurn();
-                }
+                    else
+                    {
+                        string color = GetCurrentPlayerColor();
+                        bool hasHomePawns = HasPawnsInHome(color);
+                        var movable = GetMovablePawns(color, result);
+
+                        if (result == 6 && (movable.Count > 0 || hasHomePawns))
+                        {
+                            button1.Enabled = true;
+                        }
+                        else
+                        {
+                            button1.Enabled = false;
+                            EndTurn();
+                        }
+                    }
+
+                
             };
 
             graphicsManager.DeseneazaTabla();
@@ -69,6 +92,14 @@ namespace Ludo
 
             HighlightCurrentPlayer();
         }
+        private void RemovePawnFromBoard(PictureBox pawn)
+        {
+            if (pawn.Parent != null)
+                pawn.Parent.Controls.Remove(pawn);
+
+            pawn.Dispose();
+        }
+
         private List<PictureBox> GetMovablePawns(string color, int diceResult)
         {
             List<PictureBox> movable = new List<PictureBox>();
@@ -80,21 +111,25 @@ namespace Ludo
                     if (!pawnPositions.ContainsKey(pawn))
                     {
                         if (diceResult == 6)
-                        {
                             movable.Add(pawn);
-                        }
                     }
                     else
                     {
-                       
+                        var path = pawnPaths[pawn];
+                        int currentIndex = pawnPositions[pawn];
+                        int destinationIndex = currentIndex + diceResult + 1;
+
+                        // Only allow if destination is within or exactly reaching home
+                        if (destinationIndex <= path.Count)
                             movable.Add(pawn);
-                        
                     }
                 }
             }
 
             return movable;
         }
+
+
 
         private void EnablePawnSelection(List<PictureBox> movablePawns)
         {
@@ -106,22 +141,54 @@ namespace Ludo
         }
         private void MovePawnForward(PictureBox pawn, int steps)
         {
-            if (!pawnPositions.ContainsKey(pawn))
+            if (!pawnPaths.ContainsKey(pawn)) return;
+
+            var path = pawnPaths[pawn];
+            int currentPos = pawnPositions[pawn];
+            int newPos = currentPos + steps;
+            if (newPos == path.Count)
             {
+                // Pawn finishes the game
+                string color = graphicsManager.GetPawnColor(pawn);
+                RemovePawnFromBoard(pawn);
+
+                if (pawnsFinished.ContainsKey(color))
+                {
+                    pawnsFinished[color]++;
+                    Console.WriteLine($"{color} has {pawnsFinished[color]} pawns finished.");
+
+                    if (winners.Count == 3)
+                    {
+                        // Find the last remaining player
+                        string remaining = new[] { "G", "R", "Y", "B" }
+                            .FirstOrDefault(c => !winners.Contains(c));
+
+                        if (remaining != null)
+                            winners.Add(remaining); // Add 4th as last by default
+
+                        // Open leaderboard form with the 4 final positions
+                        var leaderboard = new Leaderboard(winners[0], winners[1], winners[2], winners[3]);
+                        leaderboard.Show();
+                        this.Close();
+                    }
+
+                }
+
+                // Remove tracking
+                pawnPositions.Remove(pawn);
+                pawnPaths.Remove(pawn);
+                return;
+            }
+            else if (newPos > path.Count)
+            {
+                // Oversteps final square — not a valid move
+                Console.WriteLine("Invalid move: would go beyond the final square.");
                 return;
             }
 
-            int currentPos = pawnPositions[pawn];
-            int newPos = (currentPos + steps)% pawnPath.Count;
 
-            int totalPositions = pawnPath.Count;
-            if (newPos >= totalPositions)
-            {
-                newPos = totalPositions - 1;
+            var pathSquare = path[newPos];
 
-            }
-
-            var pathSquare = pawnPath[newPos];
 
             if (pawn.Parent != null)
             {
@@ -150,7 +217,7 @@ namespace Ludo
             public TableLayoutPanel Panel { get; set; }
             public int Row { get; set; }
             public int Column { get; set; }
-            public string Color { get; set; }  
+            public string Color { get; set; }
 
             public PathSquare(TableLayoutPanel panel, int row, int column, string color = "")
             {
@@ -275,8 +342,46 @@ namespace Ludo
                 }
                 else if (pawnPositions.ContainsKey(pawn))
                 {
-                    MovePawnForward(pawn, steps);
+                    var path = pawnPaths[pawn];
+                    int currentIndex = pawnPositions[pawn];
+                    int destinationIndex = currentIndex + steps + 1;
+
+                    if (destinationIndex >= path.Count)
+                    {
+                        // Pawn reaches the house
+                        RemovePawnFromBoard(pawn);
+                        pawnPositions.Remove(pawn);
+
+                        string color = GetCurrentPlayerColor();
+                        pawnsFinished[color]++;
+
+                        // Check if player has finished all 4
+                        if (pawnsFinished[color] == 4 && !winners.Contains(color))
+                        {
+                            winners.Add(color);
+                            Console.WriteLine($"{color} is winner #{winners.Count}");
+
+                            if (winners.Count == 3)
+                            {
+                                // Add remaining player as 4th
+                                string remaining = new[] { "G", "R", "Y", "B" }
+                                    .FirstOrDefault(c => !winners.Contains(c));
+                                if (remaining != null)
+                                    winners.Add(remaining);
+
+                                var leaderboard = new Leaderboard(winners[0], winners[1], winners[2], winners[3]);
+                                leaderboard.Show();
+                                button1.Enabled = false;
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MovePawnForward(pawn, steps);
+                    }
                 }
+
 
                 DisablePawnSelection();
                 movePending = false;
@@ -319,14 +424,26 @@ namespace Ludo
             if (string.IsNullOrEmpty(color))
                 return;
 
-            int startPosition = graphicsManager.GetStartPositionForColor(color);
-            if (startPosition < 0 || startPosition >= pawnPath.Count)
+            var path = graphicsManager.GetFullPathForPawn(color);
+            pawnPaths[pawn] = path;
+
+            // Get the start square's coordinates
+            PathSquare startSquare = graphicsManager.GetPawnPath()[graphicsManager.GetStartPositionForColor(color)];
+
+            // Find the index of the square in the full path that matches the start square location
+            int actualIndex = path.FindIndex(sq =>
+                sq.Panel == startSquare.Panel &&
+                sq.Row == startSquare.Row &&
+                sq.Column == startSquare.Column
+            );
+
+            if (actualIndex == -1)
             {
-                Console.WriteLine($"Invalid start position {startPosition} for color {color}");
+                Console.WriteLine($"Start square not found in full path for color {color}");
                 return;
             }
 
-            var pathSquare = pawnPath[startPosition];
+            var pathSquare = path[actualIndex];
 
             if (pawn.Parent != null)
                 pawn.Parent.Controls.Remove(pawn);
@@ -344,27 +461,31 @@ namespace Ludo
                 );
                 pawn.BringToFront();
 
-                pawnPositions[pawn] = startPosition;
-                Console.WriteLine($"Moved {color} pawn to position {startPosition}");
+                pawnPositions[pawn] = actualIndex; // now reflects real index in full path
+                Console.WriteLine($"Moved {color} pawn to position {actualIndex}");
             }
         }
-        private int FindPositionInPath(TableLayoutPanel panel, int column, int row)
+
+        private int FindPositionInPath(PictureBox pawn, TableLayoutPanel panel, int column, int row)
         {
-            for (int i = 0; i < pawnPath.Count; i++)
+            if (!pawnPaths.ContainsKey(pawn)) return -1;
+
+            var path = pawnPaths[pawn];
+
+            for (int i = 0; i < path.Count; i++)
             {
-                if (pawnPath[i].Panel == panel &&
-                    pawnPath[i].Column == column &&
-                    pawnPath[i].Row == row)
+                if (path[i].Panel == panel && path[i].Column == column && path[i].Row == row)
                 {
                     return i;
                 }
             }
-            return -1; 
+            return -1;
         }
+
         private void Tabla_Load(object sender, EventArgs e)
         {
             graphicsManager.RepozitioneazaTabla();
-            pawnPath = graphicsManager.GetPawnPath();
+
         }
 
         private void MovePawnToSquare(PictureBox pawn, Panel square)

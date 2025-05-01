@@ -150,6 +150,62 @@ namespace Ludo
                 default: return 0;
             }
         }
+        public List<PathSquare> GetFinalPathForColor(string color)
+        {
+            var finalPath = new List<PathSquare>();
+
+            switch (color.ToUpper())
+            {
+                case "Y": // Yellow's final 5 squares
+                    finalPath.Add(new PathSquare(panels[1], 1, 1));
+                    finalPath.Add(new PathSquare(panels[1], 2, 1));
+                    finalPath.Add(new PathSquare(panels[1], 3, 1));
+                    finalPath.Add(new PathSquare(panels[1], 4, 1));
+                    finalPath.Add(new PathSquare(panels[1], 5, 1));
+                    break;
+
+                case "B": // Blue
+                    finalPath.Add(new PathSquare(panels[4], 1, 4));
+                    finalPath.Add(new PathSquare(panels[4], 1, 3));
+                    finalPath.Add(new PathSquare(panels[4], 1, 2));
+                    finalPath.Add(new PathSquare(panels[4], 1, 1));
+                    finalPath.Add(new PathSquare(panels[4], 1, 0));
+                    break;
+
+                case "R": // Red
+                    finalPath.Add(new PathSquare(panels[2], 4, 1));
+                    finalPath.Add(new PathSquare(panels[2], 3, 1));
+                    finalPath.Add(new PathSquare(panels[2], 2, 1));
+                    finalPath.Add(new PathSquare(panels[2], 1, 1));
+                    finalPath.Add(new PathSquare(panels[2], 0, 1));
+                    break;
+
+                case "G": // Green
+                    finalPath.Add(new PathSquare(panels[3], 1, 1));
+                    finalPath.Add(new PathSquare(panels[3], 1, 2));
+                    finalPath.Add(new PathSquare(panels[3], 1, 3));
+                    finalPath.Add(new PathSquare(panels[3], 1, 4));
+                    finalPath.Add(new PathSquare(panels[3], 1, 0));
+                    break;
+            }
+
+            return finalPath;
+        }
+        public List<PathSquare> GetFullPathForPawn(string color)
+        {
+            var fullPath = new List<PathSquare>();
+            var basePath = GetPawnPath();
+            int startIndex = GetStartPositionForColor(color);
+            for (int i = 0; i < 51; i++)
+            {
+                int index = (startIndex + i) % basePath.Count;
+                fullPath.Add(basePath[index]);
+            }
+            fullPath.AddRange(GetFinalPathForColor(color));
+
+            return fullPath; 
+        }
+
 
         public void AddBackgroundImage(int column, int row, string file, int panelIndex)
         {
