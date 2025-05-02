@@ -81,12 +81,12 @@ namespace Ludo
         {
             var path = new List<PathSquare>();
             var p2 = panels[1];
-            var p5 = panels[4]; 
-            var p3 = panels[2]; 
-            var p4 = panels[3]; 
+            var p5 = panels[4];
+            var p3 = panels[2];
+            var p4 = panels[3];
             path.Add(new PathSquare(p2, 5, 0));
-            path.Add(new PathSquare(p2, 4, 0)); 
-            path.Add(new PathSquare(p2, 3, 0)); 
+            path.Add(new PathSquare(p2, 4, 0));
+            path.Add(new PathSquare(p2, 3, 0));
             path.Add(new PathSquare(p2, 2, 0));
             path.Add(new PathSquare(p2, 1, 0));
 
@@ -99,7 +99,7 @@ namespace Ludo
             path.Add(new PathSquare(p2, 4, 2));
             path.Add(new PathSquare(p2, 5, 2));
             path.Add(new PathSquare(p5, 0, 0));
-            path.Add(new PathSquare(p5, 0, 1)); 
+            path.Add(new PathSquare(p5, 0, 1));
             path.Add(new PathSquare(p5, 0, 2));
             path.Add(new PathSquare(p5, 0, 3));
             path.Add(new PathSquare(p5, 0, 4));
@@ -111,7 +111,7 @@ namespace Ludo
             path.Add(new PathSquare(p5, 2, 2));
             path.Add(new PathSquare(p5, 2, 1));
             path.Add(new PathSquare(p5, 2, 0));
-            path.Add(new PathSquare(p3, 0, 2)); 
+            path.Add(new PathSquare(p3, 0, 2));
             path.Add(new PathSquare(p3, 1, 2));
             path.Add(new PathSquare(p3, 2, 2));
             path.Add(new PathSquare(p3, 3, 2));
@@ -126,7 +126,7 @@ namespace Ludo
             path.Add(new PathSquare(p3, 0, 0));
             path.Add(new PathSquare(p4, 2, 5));
             path.Add(new PathSquare(p4, 2, 4));
-            path.Add(new PathSquare(p4, 2, 3)); 
+            path.Add(new PathSquare(p4, 2, 3));
             path.Add(new PathSquare(p4, 2, 2));
             path.Add(new PathSquare(p4, 2, 1));
             path.Add(new PathSquare(p4, 2, 0));
@@ -143,10 +143,10 @@ namespace Ludo
         {
             switch (color.ToUpper())
             {
-                case "Y": return 8;   
-                case "B": return 21;  
-                case "R": return 34;  
-                case "G": return 47;  
+                case "Y": return 8;
+                case "B": return 21;
+                case "R": return 34;
+                case "G": return 47;
                 default: return 0;
             }
         }
@@ -162,6 +162,7 @@ namespace Ludo
                     finalPath.Add(new PathSquare(panels[1], 3, 1));
                     finalPath.Add(new PathSquare(panels[1], 4, 1));
                     finalPath.Add(new PathSquare(panels[1], 5, 1));
+                    finalPath.Add(new PathSquare(panels[0], 1, 1));
                     break;
 
                 case "B": // Blue
@@ -170,6 +171,7 @@ namespace Ludo
                     finalPath.Add(new PathSquare(panels[4], 1, 2));
                     finalPath.Add(new PathSquare(panels[4], 1, 1));
                     finalPath.Add(new PathSquare(panels[4], 1, 0));
+                    finalPath.Add(new PathSquare(panels[0], 1, 1));
                     break;
 
                 case "R": // Red
@@ -178,6 +180,7 @@ namespace Ludo
                     finalPath.Add(new PathSquare(panels[2], 2, 1));
                     finalPath.Add(new PathSquare(panels[2], 1, 1));
                     finalPath.Add(new PathSquare(panels[2], 0, 1));
+                    finalPath.Add(new PathSquare(panels[0], 1, 1));
                     break;
 
                 case "G": // Green
@@ -185,7 +188,8 @@ namespace Ludo
                     finalPath.Add(new PathSquare(panels[3], 1, 2));
                     finalPath.Add(new PathSquare(panels[3], 1, 3));
                     finalPath.Add(new PathSquare(panels[3], 1, 4));
-                    finalPath.Add(new PathSquare(panels[3], 1, 0));
+                    finalPath.Add(new PathSquare(panels[3], 1, 5));
+                    finalPath.Add(new PathSquare(panels[0], 1, 1));
                     break;
             }
 
@@ -203,7 +207,7 @@ namespace Ludo
             }
             fullPath.AddRange(GetFinalPathForColor(color));
 
-            return fullPath; 
+            return fullPath;
         }
 
 
@@ -241,11 +245,16 @@ namespace Ludo
             {
                 PictureBox pawn = new PictureBox();
                 pawn.SizeMode = PictureBoxSizeMode.Zoom;
-                pawn.Image = Image.FromFile($"imagini/PAWN_{colorChar}.png");
+
+                string imagePath = $"imagini/PAWN_{colorChar}.png";
+                pawn.Image = Image.FromFile(imagePath);
+                pawn.Image.Tag = imagePath; // ✅ Set image path as Tag
+
                 pawn.BackColor = Color.Transparent;
                 parent.Controls.Add(pawn);
-                pawnsByColor[color].Add(pawn); 
+                pawnsByColor[color].Add(pawn);
             }
+
 
             parent.Resize += delegate (object sender, EventArgs e)
             {

@@ -45,7 +45,6 @@ namespace Ludo
             button1.BackColor = Color.White;
             button1.ForeColor = Color.Black;
             playerNames = new string[] { p1, p2, p3, p4 };
-
             diceAnimator = new AnimatieZar(timer1, pictureBox1, panel1);
             diceAnimator.InitializeUI(this);
             graphicsManager = new AfisareTabla(this, tableLayoutPanel1, tableLayoutPanel2, tableLayoutPanel3, tableLayoutPanel4, tableLayoutPanel5);
@@ -65,26 +64,26 @@ namespace Ludo
                     // Keep button disabled while selecting pawn
                     button1.Enabled = false;
                 }
-               
-                    // Only enable for another roll if it's a 6 with no moves
+
+                // Only enable for another roll if it's a 6 with no moves
+                else
+                {
+                    string color = GetCurrentPlayerColor();
+                    bool hasHomePawns = HasPawnsInHome(color);
+                    var movable = GetMovablePawns(color, result);
+
+                    if (result == 6 && (movable.Count > 0 || hasHomePawns))
+                    {
+                        button1.Enabled = true;
+                    }
                     else
                     {
-                        string color = GetCurrentPlayerColor();
-                        bool hasHomePawns = HasPawnsInHome(color);
-                        var movable = GetMovablePawns(color, result);
-
-                        if (result == 6 && (movable.Count > 0 || hasHomePawns))
-                        {
-                            button1.Enabled = true;
-                        }
-                        else
-                        {
-                            button1.Enabled = false;
-                            EndTurn();
-                        }
+                        button1.Enabled = false;
+                        EndTurn();
                     }
+                }
 
-                
+
             };
 
             graphicsManager.DeseneazaTabla();
@@ -349,8 +348,8 @@ namespace Ludo
                     if (destinationIndex >= path.Count)
                     {
                         // Pawn reaches the house
-                        RemovePawnFromBoard(pawn);
-                        pawnPositions.Remove(pawn);
+                        MovePawnForward(pawn,steps);
+                        //pawnPositions.Remove(pawn);
 
                         string color = GetCurrentPlayerColor();
                         pawnsFinished[color]++;
@@ -487,7 +486,6 @@ namespace Ludo
             graphicsManager.RepozitioneazaTabla();
 
         }
-
         private void MovePawnToSquare(PictureBox pawn, Panel square)
         {
             if (pawn.Parent != null)
@@ -497,16 +495,33 @@ namespace Ludo
 
             if (square != null)
             {
-
                 square.Controls.Add(pawn);
-
                 pawn.Dock = DockStyle.None;
                 pawn.SizeMode = PictureBoxSizeMode.Zoom;
-                pawn.Size = new Size(30, 30);
-                pawn.Location = new Point(
-                    (square.Width - pawn.Width) / 2,
-                    (square.Height - pawn.Height) / 2
-                );
+
+                // Check if this is a home square for green pawns
+                if (square.BackgroundImage != null &&
+                    square.BackgroundImage == Image.FromFile("imagini/CASA.png") &&
+                    graphicsManager.GetPawnColor(pawn) == "G")
+                {
+                    // Special positioning for green pawns in home
+                    int targetWidth = square.Width / 2;
+                    pawn.Size = new Size(targetWidth, targetWidth);
+
+                    // Position at left center
+                    int posY = (square.Height - pawn.Height) / 2;
+                    pawn.Location = new Point(0, posY); // X=0 for left alignment
+                }
+                else
+                {
+                    // Default center positioning for other cases
+                    pawn.Size = new Size(30, 30);
+                    pawn.Location = new Point(
+                        (square.Width - pawn.Width) / 2,
+                        (square.Height - pawn.Height) / 2
+                    );
+                }
+
                 pawn.BringToFront();
             }
             else
@@ -514,6 +529,15 @@ namespace Ludo
                 Console.WriteLine("Error: Target square is null.");
             }
         }
+        private bool AreImagesEqual(Image img1, Image img2)
+        {
+            if (img1 == null || img2 == null) return false;
+            return img1.Size == img2.Size && img1.PixelFormat == img2.PixelFormat;
+        }
 
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            EndTurn();
+        }
     }
 }
