@@ -60,6 +60,7 @@
     <Compile Include="Leaderboard.Designer.cs">
       <DependentUpon>Leaderboard.cs</DependentUpon>
     </Compile>
+    <Compile Include="MutarePioni.cs" />
     <Compile Include="Players.cs">
       <SubType>Form</SubType>
     </Compile>

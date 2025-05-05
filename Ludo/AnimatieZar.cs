@@ -8,32 +8,32 @@ namespace Ludo
 {
     internal class AnimatieZar
     {
-        private readonly Random rng = new Random();
-        private readonly Timer timer;
-        private readonly PictureBox pictureBox;
-        private readonly Panel parentPanel;
+        private readonly Random generator = new Random();
+        private readonly Timer cronometru;
+        private readonly PictureBox casetaImagine;
+        private readonly Panel panouParinte;
 
-        private List<(int value, Image image)> diceFaces;
-        private int rollStep;
-        private int maxSteps;
-        private int rollDelay;
+        private List<(int valoare, Image imagine)> feteZar;
+        private int pasAruncare;
+        private int pasiMaximi;
+        private int intarziereAruncare;
 
-        public int LastRolledValue { get; private set; }
-        public event Action<int> DiceRollCompleted;
+        public int UltimaValoareAruncata { get; private set; }
+        public event Action<int> AruncareZarCompletata;
 
-        public AnimatieZar(Timer timer, PictureBox pictureBox, Panel parentPanel)
+        public AnimatieZar(Timer cronometru, PictureBox casetaImagine, Panel panouParinte)
         {
-            this.timer = timer;
-            this.pictureBox = pictureBox;
-            this.parentPanel = parentPanel;
+            this.cronometru = cronometru;
+            this.casetaImagine = casetaImagine;
+            this.panouParinte = panouParinte;
 
-            LoadDiceFaces();
-            this.timer.Tick += Timer_Tick;
+            IncarcaFeteleZarului();
+            this.cronometru.Tick += Cronometru_Tick;
         }
 
-        private void LoadDiceFaces()
+        private void IncarcaFeteleZarului()
         {
-            diceFaces = new List<(int, Image)>
+            feteZar = new List<(int, Image)>
             {
                 (1, Image.FromFile("imagini/ZAR_1.png")),
                 (2, Image.FromFile("imagini/ZAR_2.png")),
@@ -44,95 +44,96 @@ namespace Ludo
             };
         }
 
-        public void InitializeUI(Form parent)
+        public void InitializeazaUI(Form parinte)
         {
-            parentPanel.Parent = parent;
-            pictureBox.BringToFront();
-            SetPanelPositionRelativeTo(parent);
+            panouParinte.Parent = parinte;
+            casetaImagine.BringToFront();
+            SeteazaPozitiaPanouRelativ(parinte);
         }
 
-        public void SetPanelPositionRelativeTo(Control parent)
+        public void SeteazaPozitiaPanouRelativ(Control parinte)
         {
             float relX = 1.6f;
             float relY = 0.41f;
-            int newX = (int)(parent.ClientSize.Width * relX);
-            int newY = (int)(parent.ClientSize.Height * relY);
-            parentPanel.Location = new Point(newX, newY);
+            int nouX = (int)(parinte.ClientSize.Width * relX);
+            int nouY = (int)(parinte.ClientSize.Height * relY);
+            panouParinte.Location = new Point(nouX, nouY);
 
-            float relWidth = 0.23f;
-            int newWidth = (int)(parent.ClientSize.Width * relWidth);
-            parentPanel.Size = new Size(newWidth, newWidth);
+            float relLatime = 0.23f;
+            int nouaLatime = (int)(parinte.ClientSize.Width * relLatime);
+            panouParinte.Size = new Size(nouaLatime, nouaLatime);
         }
 
         public void Start()
         {
-            rollStep = 0;
-            maxSteps = rng.Next(30, 50);
-            rollDelay = 30;
-            timer.Interval = rollDelay;
-            ShuffleFaces();
-            timer.Start();
+            pasAruncare = 0;
+            pasiMaximi = generator.Next(30, 50);
+            intarziereAruncare = 30;
+            cronometru.Interval = intarziereAruncare;
+            AmestecaFetele();
+            cronometru.Start();
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Cronometru_Tick(object sender, EventArgs e)
         {
-            MovePictureBoxRandomly();
-            ChangeDiceFaceRandomly();
+            MutareCasetaImagineAleatorie();
+            SchimbaFataZaruluiAleatorie();
 
-            rollStep++;
+            pasAruncare++;
 
-            if (rollStep > maxSteps * 0.5)
-                timer.Interval += 10;
-            if (rollStep > maxSteps * 0.8)
-                timer.Interval += 10;
+            if (pasAruncare > pasiMaximi * 0.5)
+                cronometru.Interval += 10;
+            if (pasAruncare > pasiMaximi * 0.8)
+                cronometru.Interval += 10;
 
-            if (rollStep >= maxSteps)
+            if (pasAruncare >= pasiMaximi)
             {
-                timer.Stop();
-                ShowFinalDiceFace();
+                cronometru.Stop();
+                ArataFataFinalaAzarului();
             }
         }
 
-        private void MovePictureBoxRandomly()
+        private void MutareCasetaImagineAleatorie()
         {
-            int maxX = parentPanel.ClientSize.Width - pictureBox.Width;
-            int maxY = parentPanel.ClientSize.Height - pictureBox.Height;
+            int maxX = panouParinte.ClientSize.Width - casetaImagine.Width;
+            int maxY = panouParinte.ClientSize.Height - casetaImagine.Height;
 
-            int x = rng.Next(0, Math.Max(1, maxX));
-            int y = rng.Next(0, Math.Max(1, maxY));
-            pictureBox.Location = new Point(x, y);
+            int x = generator.Next(0, Math.Max(1, maxX));
+            int y = generator.Next(0, Math.Max(1, maxY));
+            casetaImagine.Location = new Point(x, y);
         }
 
-        private void ChangeDiceFaceRandomly()
+        private void SchimbaFataZaruluiAleatorie()
         {
-            int faceIndex = rng.Next(diceFaces.Count);
-            var (value, image) = diceFaces[faceIndex];
-            pictureBox.Image = image;
+            int indiceFata = generator.Next(feteZar.Count);
+            var (valoare, imagine) = feteZar[indiceFata];
+            casetaImagine.Image = imagine;
         }
 
-        private void ShowFinalDiceFace()
+        private void ArataFataFinalaAzarului()
         {
-            timer.Stop();
+            cronometru.Stop();
 
-            foreach (var (value, image) in diceFaces)
+            foreach (var (valoare, imagine) in feteZar)
             {
-                if (pictureBox.Image == image)
+                if (casetaImagine.Image == imagine)
                 {
-                    LastRolledValue = value;
-                    DiceRollCompleted?.Invoke(LastRolledValue);
+                    UltimaValoareAruncata = valoare;
+                    AruncareZarCompletata?.Invoke(UltimaValoareAruncata);
                     break;
                 }
             }
         }
 
-        private void ShuffleFaces()
+        private void AmestecaFetele()
         {
-            diceFaces = diceFaces.OrderBy(_ => rng.Next()).ToList();
+            feteZar = feteZar.OrderBy(_ => generator.Next()).ToList();
         }
-        public void SkipAnimation()
+
+        public void SkipAnimatie()
         {
-            timer.Stop();
-            ShowFinalDiceFace(); 
+            cronometru.Stop();
+            ArataFataFinalaAzarului();
         }
     }
 }
