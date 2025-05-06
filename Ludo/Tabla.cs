@@ -19,7 +19,6 @@ namespace Ludo
         private int indexJucatorCurent = 0;
         private DateTime ultimaOraClick = DateTime.MinValue;
         private const int pragDoubleClick = 1000;
-
         public Tabla(string p1, string p2, string p3, string p4)
         {
             InitializeComponent();
@@ -98,7 +97,23 @@ namespace Ludo
 
         public void AfiseazaClasament(List<string> castigatori)
         {
-            var clasament = new Leaderboard(castigatori[0], castigatori[1], castigatori[2], castigatori[3]);
+            Dictionary<string, string> culoareToNume = new Dictionary<string, string>
+    {
+        { "G", numeJucatori[0] },
+        { "R", numeJucatori[1] },
+        { "Y", numeJucatori[2] },
+        { "B", numeJucatori[3] }
+    };
+
+            List<string> numeCastigatori = castigatori.Select(c => culoareToNume.ContainsKey(c) ? culoareToNume[c] : c).ToList();
+
+            var clasament = new Leaderboard(
+                numeCastigatori.ElementAtOrDefault(0),
+                numeCastigatori.ElementAtOrDefault(1),
+                numeCastigatori.ElementAtOrDefault(2),
+                numeCastigatori.ElementAtOrDefault(3)
+            );
+
             clasament.Show();
             this.Close();
         }
@@ -117,10 +132,17 @@ namespace Ludo
 
         private void IncheieTura()
         {
-            indexJucatorCurent = (indexJucatorCurent + 1) % numeJucatori.Length;
+            do
+            {
+                indexJucatorCurent = (indexJucatorCurent + 1) % numeJucatori.Length;
+                string culoare = ObtineCuloareJucatorCurent();
+                var finalizati = mutariPioni.ObținePioniFinalizați();
+            } while (mutariPioni.ObținePioniFinalizați().TryGetValue(ObtineCuloareJucatorCurent(), out int count) && count >= 4);
+
             EvidentiazaJucatorulCurent();
             button1.Enabled = true;
         }
+
 
         private void EvidentiazaJucatorulCurent()
         {
@@ -198,7 +220,17 @@ namespace Ludo
                 }
             }
         }
-
+        public PictureBox ObtinePionPeCasuta(Control casuta)
+        {
+            foreach (Control control in casuta.Controls)
+            {
+                if (control is PictureBox pion)
+                {
+                    return pion;
+                }
+            }
+            return null;
+        }
         private void Pion_Click(object sender, EventArgs e)
         {
             if (sender is PictureBox pion)

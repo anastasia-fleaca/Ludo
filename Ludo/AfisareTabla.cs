@@ -271,6 +271,7 @@ namespace Ludo
             };
         }
 
+
         public void RepoziționeazăTabla()
         {
             float dimensiuneRelativa = 0.69f;
@@ -322,6 +323,24 @@ namespace Ludo
             int newW = (int)(parinte.ClientSize.Width * latimeButon);
             int newH = (int)(parinte.ClientSize.Width * inaltimeButon);
             buton1.Size = new Size(newW, newH);
+        }
+        public Control ObtineCasaPentruCuloare(string culoare)
+        {
+            TableLayoutPanel tabel = panouri[0];
+
+            switch (culoare.ToUpper())
+            {
+                case "Y":
+                    return tabel.GetControlFromPosition(2, 0);
+                case "B":
+                    return tabel.GetControlFromPosition(2, 2);
+                case "R":
+                    return tabel.GetControlFromPosition(0, 2);
+                case "G":
+                    return tabel.GetControlFromPosition(0, 0);
+                default:
+                    return null;
+            }
         }
 
         public string ObtineCuloarePiesa(PictureBox piesa)
