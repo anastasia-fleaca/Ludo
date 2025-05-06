@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -58,18 +59,22 @@ namespace Ludo
                 }
                 else
                 {
+                    
                     string culoare = ObtineCuloareJucatorCurent();
                     bool arePioniAcasa = mutariPioni.ArePioniInCasa(culoare);
                     var mutabili = mutariPioni.PioniMutabili(culoare, rezultat);
-
-                    if (rezultat == 6 && (mutabili.Count > 0 || arePioniAcasa))
-                    {
-                        button1.Enabled = true;
-                    }
+                    if (!arePioniAcasa) IncheieTura();
                     else
                     {
-                        button1.Enabled = false;
-                        IncheieTura();
+                        if (rezultat == 6 && (mutabili.Count > 0 || arePioniAcasa))
+                        {
+                            button1.Enabled = true;
+                        }
+                        else
+                        {
+                            button1.Enabled = false;
+                            IncheieTura();
+                        }
                     }
                 }
             };
@@ -114,8 +119,9 @@ namespace Ludo
                 numeCastigatori.ElementAtOrDefault(3)
             );
 
+            clasament.FormClosed += (s, e) => this.Close();  
             clasament.Show();
-            this.Close();
+            this.Hide();
         }
 
         private string ObtineCuloareJucatorCurent()
@@ -150,7 +156,6 @@ namespace Ludo
             int jucatoriTerminati = 0;
             List<string> castigatori = new List<string>();
             var finalizari = mutariPioni.ObținePioniFinalizați();
-
             foreach (var culoare in culoareToNume.Keys)
             {
                 if (finalizari.TryGetValue(culoare, out int count) && count >= 4)
