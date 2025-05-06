@@ -12,7 +12,7 @@ namespace Ludo
         private Timer cronometruDoubleClick;
         private MutarePioni mutariPioni;
         private AfisareTabla managerGrafica;
-
+        private bool turaSuplimentara = false;
         private bool esteRotireZar = false;
         private bool mutareInAsteptare = false;
         private string[] numeJucatori;
@@ -129,21 +129,53 @@ namespace Ludo
                 default: return "G";
             }
         }
-
         private void IncheieTura()
         {
+            if (turaSuplimentara)
+            {
+                turaSuplimentara = false;
+                EvidentiazaJucatorulCurent();
+                button1.Enabled = true;
+                return;
+            }
+
+            Dictionary<string, string> culoareToNume = new Dictionary<string, string>
+    {
+        { "G", numeJucatori[0] },
+        { "R", numeJucatori[1] },
+        { "Y", numeJucatori[2] },
+        { "B", numeJucatori[3] }
+    };
+
+            int jucatoriTerminati = 0;
+            List<string> castigatori = new List<string>();
+            var finalizari = mutariPioni.ObținePioniFinalizați();
+
+            foreach (var culoare in culoareToNume.Keys)
+            {
+                if (finalizari.TryGetValue(culoare, out int count) && count >= 4)
+                {
+                    jucatoriTerminati++;
+                    string nume = culoareToNume[culoare];
+                    if (!castigatori.Contains(nume))
+                        castigatori.Add(nume);
+                }
+            }
+
+            if (jucatoriTerminati == 4)
+            {
+                AfiseazaClasament(castigatori);
+                return;
+            }
+
             do
             {
                 indexJucatorCurent = (indexJucatorCurent + 1) % numeJucatori.Length;
-                string culoare = ObtineCuloareJucatorCurent();
-                var finalizati = mutariPioni.ObținePioniFinalizați();
-            } while (mutariPioni.ObținePioniFinalizați().TryGetValue(ObtineCuloareJucatorCurent(), out int count) && count >= 4);
+            } while (finalizari.TryGetValue(ObtineCuloareJucatorCurent(), out int count) && count >= 4);
 
             EvidentiazaJucatorulCurent();
             button1.Enabled = true;
         }
-
-
         private void EvidentiazaJucatorulCurent()
         {
             label1.Font = new Font(label1.Font.FontFamily, 28, FontStyle.Regular);
@@ -167,10 +199,17 @@ namespace Ludo
                     break;
             }
         }
-
         private void ButtonZar_Click(object sender, EventArgs e)
         {
             DateTime acum = DateTime.Now;
+            string culoare = ObtineCuloareJucatorCurent();
+
+            if (JucatorATerminatTot(culoare))
+            {
+                button1.Enabled = false;
+                IncheieTura(); 
+                return;
+            }
 
             if (esteRotireZar)
             {
@@ -251,9 +290,35 @@ namespace Ludo
                 }
                 else
                 {
+                    if (mutariPioni.AreTuraExtra)
+                    {
+                        string culoare = ObtineCuloareJucatorCurent();
+                        AcordaTuraSuplimentara(culoare);
+                        button1.Enabled = true;
+                        mutariPioni.ResetareTuraExtra();
+                    }
                     IncheieTura();
                 }
             }
+        }
+        public void AcordaTuraSuplimentara(string culoare)
+        {
+            turaSuplimentara = true;
+        }
+        public void DisableDiceButton(string culoare)
+        {
+            if (culoare == "Y")
+                button1.Enabled = false;
+            else if (culoare == "B")
+                button1.Enabled = false;
+            else if (culoare == "G")
+                button1.Enabled = false;
+            else if (culoare == "R")
+                button1.Enabled = false;
+        }
+        private bool JucatorATerminatTot(string culoare)
+        {
+            return mutariPioni.ObținePioniFinalizați().TryGetValue(culoare, out int count) && count >= 4;
         }
 
         private void button1_EnabledChanged(object sender, EventArgs e)

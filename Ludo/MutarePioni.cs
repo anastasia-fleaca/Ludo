@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -20,7 +21,8 @@ namespace Ludo
             { "G", 0 }
         };
         private List<string> castigatori = new List<string>();
-
+        public bool AreTuraExtra { get; private set; } = false;
+        public void ResetareTuraExtra() => AreTuraExtra = false;
         public MutarePioni(Tabla formular, AfisareTabla managerGrafica)
         {
             this.formParinte = formular;
@@ -34,74 +36,85 @@ namespace Ludo
             int pozitieCurenta = pozitiiPioni[pion];
             int pozitieNoua = pozitieCurenta + pasi;
 
-            if (pozitieNoua >= drum.Count)
+            if (pozitieNoua >= drum.Count-1)
             {
+                
                 string culoare = managerGrafica.ObtineCuloarePiesa(pion);
-                StergePionDePeTabla(pion);
+                if (pozitiiPioni.ContainsKey(pion))
+                    pozitiiPioni.Remove(pion);
+                if (drumuriPioni.ContainsKey(pion))
+                    drumuriPioni.Remove(pion);
+                if (managerGrafica.pioniColorati.ContainsKey(culoare))
+                    managerGrafica.pioniColorati[culoare].Remove(pion);
+                if (pion.InvokeRequired)
+                {
+                    pion.Invoke(new MethodInvoker(() =>
+                    {
+                        StergePionDePeTabla(pion);
+                    }));
+                }
+                else
+                {
+                    StergePionDePeTabla(pion);
+                }
 
                 if (pioniFinalizati.ContainsKey(culoare))
                 {
                     pioniFinalizati[culoare]++;
+
+                    if (pioniFinalizati[culoare] == 4 && !castigatori.Contains(culoare))
+                        castigatori.Add(culoare);
+
                     if (castigatori.Count == 3)
                     {
                         string ramas = new[] { "G", "R", "Y", "B" }
                             .FirstOrDefault(c => !castigatori.Contains(c));
-
                         if (ramas != null)
                             castigatori.Add(ramas);
-
                         formParinte.AfiseazaClasament(castigatori);
                     }
-                }
 
-                pozitiiPioni.Remove(pion);
-                drumuriPioni.Remove(pion);
-                Control finalSquareContainer = drum[drum.Count - 1].Panel.GetControlFromPosition(drum[drum.Count - 1].Column, drum[drum.Count - 1].Row);
-                if (finalSquareContainer is PictureBox finalSquareBackground)
-                {
-                    finalSquareBackground.Controls.Add(pion);
-                    pion.Dock = DockStyle.None;
-                    pion.SizeMode = PictureBoxSizeMode.Zoom;
-                    pion.Size = new Size(30, 30);
-                    pion.Location = new Point(
-                        (finalSquareBackground.Width - pion.Width) / 2,
-                        (finalSquareBackground.Height - pion.Height) / 2
-                    );
-                    pion.BringToFront();
+                    AreTuraExtra = true;
                 }
 
                 return;
             }
-
-            var casutaDrum = drum[pozitieNoua];
-
-            if (pion.Parent != null)
+            else
             {
-                pion.Parent.Controls.Remove(pion);
+                var casutaDrum = drum[pozitieNoua];
+
+                if (pion.Parent != null)
+                    pion.Parent.Controls.Remove(pion);
+
+                Control containerDrum = casutaDrum.Panel.GetControlFromPosition(casutaDrum.Column, casutaDrum.Row);
+                PictureBox pionPeCasuta = formParinte.ObtinePionPeCasuta(containerDrum);
+
+                if (pionPeCasuta != null)
+                {
+                    string culoareAtacator = managerGrafica.ObtineCuloarePiesa(pion);
+                    string culoareVictima = managerGrafica.ObtineCuloarePiesa(pionPeCasuta);
+                    if (culoareAtacator != culoareVictima)
+                    {
+                        VerificaSiTrimitePionInCasa(pionPeCasuta, culoareAtacator);
+                        AreTuraExtra = true;
+                    }
+                }
+
+                if (containerDrum is PictureBox newPictureBackground)
+                {
+                    newPictureBackground.Controls.Add(pion);
+                    pion.Dock = DockStyle.None;
+                    pion.SizeMode = PictureBoxSizeMode.Zoom;
+                    pion.Size = new Size(30, 30);
+                    pion.Location = new Point(
+                        (newPictureBackground.Width - pion.Width) / 2,
+                        (newPictureBackground.Height - pion.Height) / 2
+                    );
+                    pion.BringToFront();
+                }
+
+                pozitiiPioni[pion] = pozitieNoua;
             }
-
-            Control containerDrum = casutaDrum.Panel.GetControlFromPosition(casutaDrum.Column, casutaDrum.Row);
-            PictureBox pionPeCasuta = formParinte.ObtinePionPeCasuta(containerDrum);
-
-            if (pionPeCasuta != null)
-            {
-                VerificaSiTrimitePionInCasa(pionPeCasuta, managerGrafica.ObtineCuloarePiesa(pion));
-            }
-
-            if (containerDrum is PictureBox newPictureBackground)
-            {
-                newPictureBackground.Controls.Add(pion);
-                pion.Dock = DockStyle.None;
-                pion.SizeMode = PictureBoxSizeMode.Zoom;
-                pion.Size = new Size(30, 30);
-                pion.Location = new Point(
-                    (newPictureBackground.Width - pion.Width) / 2,
-                    (newPictureBackground.Height - pion.Height) / 2
-                );
-                pion.BringToFront();
-            }
-
-            pozitiiPioni[pion] = pozitieNoua;
         }
 
         public void MutarePionLaStart(PictureBox pion)
@@ -254,6 +267,7 @@ namespace Ludo
 
                 AdaugaPionInCasa(pion, culoarePionCurent);
             }
+            AreTuraExtra = true;
         }
 
         public List<PictureBox> PioniMutabili(string culoare, int rezultatZar)
@@ -298,7 +312,6 @@ namespace Ludo
             }
             pion.Dispose();
         }
-
         public void ProceseazaClickPion(PictureBox pion, int pasi)
         {
             string culoare = managerGrafica.ObtineCuloarePiesa(pion);
@@ -345,10 +358,10 @@ namespace Ludo
 
             if (!areMutari)
             {
-                return; 
+                return;
             }
 
-            if (!pozitiiPioni.ContainsKey(pion) && pasi == 6)
+            if (pasi == 6 && !pozitiiPioni.ContainsKey(pion))
             {
                 MutarePionLaStart(pion);
             }
@@ -375,6 +388,7 @@ namespace Ludo
                             formParinte.AfiseazaClasament(castigatori);
                         }
                     }
+                    AreTuraExtra = true; 
                 }
                 else
                 {
@@ -405,6 +419,11 @@ namespace Ludo
                 pionNou.BringToFront();
             }
         }
+        public bool TotiPioniiFinalizati(string culoare)
+        {
+            return pioniFinalizati.ContainsKey(culoare) && pioniFinalizati[culoare] == 4;
+        }
+
         public Dictionary<PictureBox, int> ObținePozitiilePioni() => pozitiiPioni;
         public Dictionary<PictureBox, List<Tabla.CasutaDrum>> ObțineDrumurilePioni() => drumuriPioni;
         public List<string> ObțineCastigatori() => castigatori;
