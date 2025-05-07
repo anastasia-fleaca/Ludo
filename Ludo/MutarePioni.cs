@@ -36,148 +36,110 @@ namespace Ludo
             int pozitieCurenta = pozitiiPioni[pion];
             int pozitieNoua = pozitieCurenta + pasi;
 
-            if (pozitieNoua >= drum.Count-1)
+            if (pozitieNoua >= drum.Count - 1)
             {
-                
                 string culoare = managerGrafica.ObtineCuloarePiesa(pion);
-                if (pozitiiPioni.ContainsKey(pion))
-                    pozitiiPioni.Remove(pion);
-                if (drumuriPioni.ContainsKey(pion))
-                    drumuriPioni.Remove(pion);
-                if (managerGrafica.pioniColorati.ContainsKey(culoare))
-                    managerGrafica.pioniColorati[culoare].Remove(pion);
-                if (pion.InvokeRequired)
+                pozitiiPioni.Remove(pion);
+                drumuriPioni.Remove(pion);
+                managerGrafica.pioniColorati[culoare].Remove(pion);
+                StergePionDePeTabla(pion);
+
+                pioniFinalizati[culoare]++;
+                if (pioniFinalizati[culoare] == 4 && !castigatori.Contains(culoare))
+                    castigatori.Add(culoare);
+                if (castigatori.Count == 3)
                 {
-                    pion.Invoke(new MethodInvoker(() =>
-                    {
-                        StergePionDePeTabla(pion);
-                    }));
-                }
-                else
-                {
-                    StergePionDePeTabla(pion);
+                    string ramas = new[] { "G", "R", "Y", "B" }.FirstOrDefault(c => !castigatori.Contains(c));
+                    if (ramas != null) castigatori.Add(ramas);
+                    formParinte.AfiseazaClasament(castigatori);
                 }
 
-                if (pioniFinalizati.ContainsKey(culoare))
-                {
-                    pioniFinalizati[culoare]++;
-
-                    if (pioniFinalizati[culoare] == 4 && !castigatori.Contains(culoare))
-                        castigatori.Add(culoare);
-
-                    if (castigatori.Count == 3)
-                    {
-                        string ramas = new[] { "G", "R", "Y", "B" }
-                            .FirstOrDefault(c => !castigatori.Contains(c));
-                        if (ramas != null)
-                            castigatori.Add(ramas);
-                        formParinte.AfiseazaClasament(castigatori);
-                    }
-
-                    AreTuraExtra = true;
-                }
-
+                AreTuraExtra = true;
                 return;
             }
-            else
+
+            var casutaDrum = drum[pozitieNoua];
+            Control container = casutaDrum.Panel.GetControlFromPosition(casutaDrum.Column, casutaDrum.Row);
+            string culoarePion = managerGrafica.ObtineCuloarePiesa(pion);
+
+            var pioniExistenti = container.Controls.OfType<PictureBox>().ToList();
+            var pioniOponenti = pioniExistenti.Where(p => managerGrafica.ObtineCuloarePiesa(p) != culoarePion).ToList();
+
+            if (pioniOponenti.Count >= 2)
             {
-                var casutaDrum = drum[pozitieNoua];
+                return;
+            }
+            if (pion.Parent != null)
+            {
+                var oldContainer = pion.Parent;
+                oldContainer.Controls.Remove(pion);
+                ReorganizeazaPioniInCasuta(oldContainer);
+            }
 
-                if (pion.Parent != null)
-                    pion.Parent.Controls.Remove(pion);
+            container.Controls.Add(pion);
+            pozitiiPioni[pion] = pozitieNoua;
+            ReorganizeazaPioniInCasuta(container);
 
-                Control containerDrum = casutaDrum.Panel.GetControlFromPosition(casutaDrum.Column, casutaDrum.Row);
-                PictureBox pionPeCasuta = formParinte.ObtinePionPeCasuta(containerDrum);
-
-                if (pionPeCasuta != null)
-                {
-                    string culoareAtacator = managerGrafica.ObtineCuloarePiesa(pion);
-                    string culoareVictima = managerGrafica.ObtineCuloarePiesa(pionPeCasuta);
-                    if (culoareAtacator != culoareVictima)
-                    {
-                        VerificaSiTrimitePionInCasa(pionPeCasuta, culoareAtacator);
-                        AreTuraExtra = true;
-                    }
-                }
-
-                if (containerDrum is PictureBox newPictureBackground)
-                {
-                    newPictureBackground.Controls.Add(pion);
-                    pion.Dock = DockStyle.None;
-                    pion.SizeMode = PictureBoxSizeMode.Zoom;
-                    pion.Size = new Size(30, 30);
-                    pion.Location = new Point(
-                        (newPictureBackground.Width - pion.Width) / 2,
-                        (newPictureBackground.Height - pion.Height) / 2
-                    );
-                    pion.BringToFront();
-                }
-
-                pozitiiPioni[pion] = pozitieNoua;
+            if (pioniOponenti.Count == 1)
+            {
+                var pionExistent = pioniOponenti[0];
+                container.Controls.Remove(pionExistent);
+                pozitiiPioni.Remove(pionExistent);
+                drumuriPioni.Remove(pionExistent);
+                AdaugaPionInCasa(pionExistent, managerGrafica.ObtineCuloarePiesa(pionExistent));
+                ReorganizeazaPioniInCasuta(container);
+                AreTuraExtra = true;
             }
         }
 
         public void MutarePionLaStart(PictureBox pion)
         {
             string culoare = managerGrafica.ObtineCuloarePiesa(pion);
-            if (string.IsNullOrEmpty(culoare))
-                return;
+            if (string.IsNullOrEmpty(culoare)) return;
 
             var drum = managerGrafica.ObtineDrumulCompletPentruPiesa(culoare);
             drumuriPioni[pion] = drum;
 
-            var casutaStart = managerGrafica.ObtineCaleaPionului()[managerGrafica.ObtinePozitiaStartPentruCuloare(culoare)];
+            var startIndex = managerGrafica.ObtinePozitiaStartPentruCuloare(culoare);
+            var startSquare = managerGrafica.ObtineCaleaPionului()[startIndex];
 
-            int indexActual = drum.FindIndex(sq =>
-                sq.Panel == casutaStart.Panel &&
-                sq.Row == casutaStart.Row &&
-                sq.Column == casutaStart.Column
+            int indexInDrum = drum.FindIndex(sq =>
+                sq.Panel == startSquare.Panel &&
+                sq.Row == startSquare.Row &&
+                sq.Column == startSquare.Column
             );
 
-            if (indexActual == -1)
-                return;
+            if (indexInDrum == -1) return;
 
-            var casutaDrum = drum[indexActual];
+            Control container = startSquare.Panel.GetControlFromPosition(startSquare.Column, startSquare.Row);
+            if (container == null) return;
+            var pioniExistenti = container.Controls.OfType<PictureBox>().ToList();
+            var pioniOponenti = pioniExistenti.Where(p => managerGrafica.ObtineCuloarePiesa(p) != culoare).ToList();
+
+            if (pioniOponenti.Count >= 2)
+            {
+                return;
+            }
 
             if (pion.Parent != null)
-                pion.Parent.Controls.Remove(pion);
-
-            Control container = casutaDrum.Panel.GetControlFromPosition(casutaDrum.Column, casutaDrum.Row);
-
-            if (container == null)
-                return;
-
-            PictureBox pionPeCasuta = formParinte.ObtinePionPeCasuta(container);
-
-            if (pionPeCasuta != null)
             {
-                string culoarePionPeCasuta = managerGrafica.ObtineCuloarePiesa(pionPeCasuta);
-
-                if (culoarePionPeCasuta != culoare)
-                {
-                    AdaugaPionInCasa(pionPeCasuta, culoarePionPeCasuta);
-                    pozitiiPioni.Remove(pionPeCasuta);
-                    drumuriPioni.Remove(pionPeCasuta);
-                    pionPeCasuta.Dispose();
-                }
-            }
-
-            if (container is PictureBox pictureBackground)
+                var oldContainer = pion.Parent;
+                oldContainer.Controls.Remove(pion);
+            }            
+            container.Controls.Add(pion);
+            pozitiiPioni[pion] = indexInDrum;
+            ReorganizeazaPioniInCasuta(container);
+            if (pioniOponenti.Count == 1)
             {
-                pictureBackground.Controls.Add(pion);
-                pion.Dock = DockStyle.None;
-                pion.SizeMode = PictureBoxSizeMode.Zoom;
-                pion.Size = new Size(30, 30);
-                pion.Location = new Point(
-                    (pictureBackground.Width - pion.Width) / 2,
-                    (pictureBackground.Height - pion.Height) / 2
-                );
-                pion.BringToFront();
-
-                pozitiiPioni[pion] = indexActual;
+                var pionExistent = pioniOponenti[0];
+                container.Controls.Remove(pionExistent);
+                pozitiiPioni.Remove(pionExistent);
+                drumuriPioni.Remove(pionExistent);
+                AdaugaPionInCasa(pionExistent, managerGrafica.ObtineCuloarePiesa(pionExistent));
+                ReorganizeazaPioniInCasuta(container);
+                AreTuraExtra = true;
             }
         }
-
         public void AdaugaPionInCasa(PictureBox pion, string culoare)
         {
             if (!managerGrafica.pioniColorati.ContainsKey(culoare))
@@ -223,10 +185,15 @@ namespace Ludo
                 pozitie.X * latimePatrat + (latimePatrat - latimePiesa) / 2,
                 pozitie.Y * inaltimePatrat + (inaltimePatrat - inaltimePiesa) / 2
             );
-
             managerGrafica.pioniColorati[culoare].Add(pionNou);
-        }
+            if (pion.Parent != null)
+            {
+                var oldContainer = pion.Parent;
+                oldContainer.Controls.Remove(pion);
+                ReorganizeazaPioniInCasuta(oldContainer);
+            }
 
+        }
         public void VerificaSiTrimitePionInCasa(PictureBox pion, string culoareDestinatie)
         {
             string culoarePionCurent = managerGrafica.ObtineCuloarePiesa(pion);
@@ -269,35 +236,60 @@ namespace Ludo
             }
             AreTuraExtra = true;
         }
-
         public List<PictureBox> PioniMutabili(string culoare, int rezultatZar)
         {
             List<PictureBox> mutabili = new List<PictureBox>();
 
-            if (managerGrafica.pioniColorati.ContainsKey(culoare))
-            {
-                foreach (var pion in managerGrafica.pioniColorati[culoare])
-                {
-                    if (!pozitiiPioni.ContainsKey(pion))
-                    {
-                        if (rezultatZar == 6)
-                            mutabili.Add(pion);
-                    }
-                    else
-                    {
-                        var drum = drumuriPioni[pion];
-                        int indexCurent = pozitiiPioni[pion];
-                        int indexDestinatie = indexCurent + rezultatZar + 1;
+            if (!managerGrafica.pioniColorati.ContainsKey(culoare))
+                return mutabili;
 
-                        if (indexDestinatie <= drum.Count)
+            foreach (var pion in managerGrafica.pioniColorati[culoare])
+            {
+                if (!pozitiiPioni.ContainsKey(pion))
+                {
+                    if (rezultatZar == 6)
+                    {
+                        var startIndex = managerGrafica.ObtinePozitiaStartPentruCuloare(culoare);
+                        var startSquare = managerGrafica.ObtineCaleaPionului()[startIndex];
+                        Control container = startSquare.Panel.GetControlFromPosition(startSquare.Column, startSquare.Row);
+
+                        var pioniExistenti = container.Controls.OfType<PictureBox>().ToList();
+                        var pioniOponenti = pioniExistenti.Where(p => managerGrafica.ObtineCuloarePiesa(p) != culoare).ToList();
+
+                        if (pioniOponenti.Count <= 1)
+                        {
                             mutabili.Add(pion);
+                        }
+                    }
+                }
+                else
+                {
+                    var drum = drumuriPioni[pion];
+                    int indexCurent = pozitiiPioni[pion];
+                    int indexDestinatie = indexCurent + rezultatZar;
+
+                    if (indexDestinatie < drum.Count)
+                    {
+                        var casutaDrum = drum[indexDestinatie];
+                        Control container = casutaDrum.Panel.GetControlFromPosition(casutaDrum.Column, casutaDrum.Row);
+
+                        var pioniExistenti = container.Controls.OfType<PictureBox>().ToList();
+                        var pioniOponenti = pioniExistenti.Where(p => managerGrafica.ObtineCuloarePiesa(p) != culoare).ToList();
+
+                        if (pioniOponenti.Count <= 1)
+                        {
+                            mutabili.Add(pion);
+                        }
+                    }
+                    else if (indexDestinatie == drum.Count)
+                    {
+                        mutabili.Add(pion);
                     }
                 }
             }
 
             return mutabili;
         }
-
         public bool ArePioniInCasa(string culoare)
         {
             return managerGrafica.pioniColorati[culoare]
@@ -419,9 +411,39 @@ namespace Ludo
                 pionNou.BringToFront();
             }
         }
-        public bool TotiPioniiFinalizati(string culoare)
+        public void ReorganizeazaPioniInCasuta(Control container)
         {
-            return pioniFinalizati.ContainsKey(culoare) && pioniFinalizati[culoare] == 4;
+            var pioni = container.Controls.OfType<PictureBox>().ToList();
+            int count = pioni.Count;
+
+            if (count == 0) return;
+
+            int cols = (int)Math.Ceiling(Math.Sqrt(count));
+            int rows = (int)Math.Ceiling((double)count / cols);
+
+            int cellWidth = container.Width / cols;
+            int cellHeight = container.Height / rows;
+            int size = Math.Min(cellWidth, cellHeight) - 4;
+
+            Size dimensiunePion = new Size(size, size);
+            Point[] pozitii = new Point[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                int row = i / cols;
+                int col = i % cols;
+                int x = col * cellWidth + (cellWidth - size) / 2;
+                int y = row * cellHeight + (cellHeight - size) / 2;
+                pozitii[i] = new Point(x, y);
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                var pion = pioni[i];
+                pion.Size = dimensiunePion;
+                pion.Location = pozitii[i];
+                pion.BringToFront();
+            }
         }
 
         public Dictionary<PictureBox, int> ObținePozitiilePioni() => pozitiiPioni;
