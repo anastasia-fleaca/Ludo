@@ -39,7 +39,7 @@
             // 
             this.textBox1.Font = new System.Drawing.Font("Microsoft YaHei", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox1.Location = new System.Drawing.Point(296, 241);
-            this.textBox1.MaxLength = 13;
+            this.textBox1.MaxLength = 11;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(248, 43);
             this.textBox1.TabIndex = 0;
@@ -49,7 +49,7 @@
             // 
             this.textBox2.Font = new System.Drawing.Font("Microsoft YaHei", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox2.Location = new System.Drawing.Point(276, 204);
-            this.textBox2.MaxLength = 13;
+            this.textBox2.MaxLength = 11;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(248, 43);
             this.textBox2.TabIndex = 1;
@@ -59,7 +59,7 @@
             // 
             this.textBox3.Font = new System.Drawing.Font("Microsoft YaHei", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox3.Location = new System.Drawing.Point(160, 137);
-            this.textBox3.MaxLength = 13;
+            this.textBox3.MaxLength = 11;
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(248, 43);
             this.textBox3.TabIndex = 2;
@@ -69,7 +69,7 @@
             // 
             this.textBox4.Font = new System.Drawing.Font("Microsoft YaHei", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox4.Location = new System.Drawing.Point(264, 41);
-            this.textBox4.MaxLength = 13;
+            this.textBox4.MaxLength = 11;
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(248, 43);
             this.textBox4.TabIndex = 3;

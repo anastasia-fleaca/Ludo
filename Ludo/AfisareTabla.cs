@@ -291,9 +291,9 @@ namespace Ludo
 
         public void PozitioneazaEticheteSiButon(Label eticheta1, Label eticheta2, Label eticheta3, Label eticheta4, Button buton1, string p1, string p2, string p3, string p4)
         {
-            float relX1 = 0.14f;
+            float relX1 = 0.12f;
             float relY1 = 0.22f;
-            float relX2 = 1.5f;
+            float relX2 = 1.4f;
             float relY2 = 1f;
 
             int newX1 = (int)(parinte.ClientSize.Width * relX1);
@@ -311,7 +311,7 @@ namespace Ludo
             eticheta3.Text = "★" + p3;
             eticheta4.Text = "★" + p4;
 
-            float relX4 = 0.58f;
+            float relX4 = 0.62f;
             float relY4 = 0.5f;
             int newX4 = (int)(parinte.ClientSize.Width * relX4);
             int newY4 = (int)(parinte.ClientSize.Height * relY4);

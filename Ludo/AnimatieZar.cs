@@ -53,13 +53,13 @@ namespace Ludo
 
         public void SeteazaPozitiaPanouRelativ(Control parinte)
         {
-            float relX = 0.59f;
-            float relY = 0.41f;
+            float relX = 0.625f;
+            float relY = 0.42f;
             int nouX = (int)(parinte.ClientSize.Width * relX);
             int nouY = (int)(parinte.ClientSize.Height * relY);
             panouParinte.Location = new Point(nouX, nouY);
 
-            float relLatime = 0.23f;
+            float relLatime = 0.21f;
             int nouaLatime = (int)(parinte.ClientSize.Width * relLatime);
             panouParinte.Size = new Size(nouaLatime, nouaLatime);
         }

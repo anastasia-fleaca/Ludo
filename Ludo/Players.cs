@@ -22,10 +22,10 @@ namespace Ludo
             this.TopMost = true;
             this.ActiveControl = null;
             float relY = 1.6f;
-            float relX1 = 0.25f;
-            float relX2 = 0.83f;
-            float relX3 = 1.42f;
-            float relX4 = 1.95f;
+            float relX1 = 0.23f;
+            float relX2 = 0.78f;
+            float relX3 = 1.33f;
+            float relX4 = 1.82f;
             int newX1 = (int)(this.ClientSize.Width * relX1);
             int newX2 = (int)(this.ClientSize.Width * relX2);
             int newX3 = (int)(this.ClientSize.Width * relX3);
@@ -35,7 +35,7 @@ namespace Ludo
             textBox2.Location = new Point(newX2, newY);
             textBox3.Location = new Point(newX3, newY);
             textBox4.Location = new Point(newX4, newY);
-            float relXB = 1.15f;
+            float relXB = 1.1f;
             float relYB = 1.9f;
             float relWidth = 0.25f;
             float relHeight = 0.13f;
