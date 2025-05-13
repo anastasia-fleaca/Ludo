@@ -311,7 +311,7 @@ namespace Ludo
             eticheta3.Text = "★" + p3;
             eticheta4.Text = "★" + p4;
 
-            float relX4 = 1.61f;
+            float relX4 = 0.58f;
             float relY4 = 0.78f;
             int newX4 = (int)(parinte.ClientSize.Width * relX4);
             int newY4 = (int)(parinte.ClientSize.Height * relY4);
