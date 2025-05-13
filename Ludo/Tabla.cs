@@ -82,6 +82,10 @@ namespace Ludo
             managerGrafica.DeseneazaTabla();
             managerGrafica.PozitioneazaEticheteSiButon(label1, label2, label3, label4, button1, p1, p2, p3, p4);
             EvidentiazaJucatorulCurent();
+            managerGrafica.InitializeazaPioniEtichete(label3, "Y");
+            managerGrafica.InitializeazaPioniEtichete(label4, "B");
+            managerGrafica.InitializeazaPioniEtichete(label2, "R");
+            managerGrafica.InitializeazaPioniEtichete(label1, "G");
         }
 
         public class CasutaDrum
@@ -90,13 +94,14 @@ namespace Ludo
             public int Row { get; set; }
             public int Column { get; set; }
             public string Culoare { get; set; }
-
-            public CasutaDrum(TableLayoutPanel panel, int row, int column, string culoare = "")
+            public bool IsSafe { get; set; }
+            public CasutaDrum(TableLayoutPanel panel, int row, int column, string culoare = "", bool isSafe = false)
             {
                 Panel = panel;
                 Row = row;
                 Column = column;
                 Culoare = culoare;
+                IsSafe = isSafe;
             }
         }
 
@@ -347,5 +352,6 @@ namespace Ludo
         {
             IncheieTura();
         }
+    
     }
 }

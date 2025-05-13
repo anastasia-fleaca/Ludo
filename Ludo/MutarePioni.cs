@@ -43,7 +43,7 @@ namespace Ludo
                 drumuriPioni.Remove(pion);
                 managerGrafica.pioniColorati[culoare].Remove(pion);
                 StergePionDePeTabla(pion);
-
+                managerGrafica.AfiseazaPionSubEticheta(culoare);
                 pioniFinalizati[culoare]++;
                 if (pioniFinalizati[culoare] == 4 && !castigatori.Contains(culoare))
                     castigatori.Add(culoare);
@@ -64,8 +64,9 @@ namespace Ludo
 
             var pioniExistenti = container.Controls.OfType<PictureBox>().ToList();
             var pioniOponenti = pioniExistenti.Where(p => managerGrafica.ObtineCuloarePiesa(p) != culoarePion).ToList();
+            bool isSafe = casutaDrum.IsSafe;
 
-            if (pioniOponenti.Count >= 2)
+            if (!isSafe && pioniOponenti.Count >= 2)
             {
                 return;
             }
@@ -80,7 +81,7 @@ namespace Ludo
             pozitiiPioni[pion] = pozitieNoua;
             ReorganizeazaPioniInCasuta(container);
 
-            if (pioniOponenti.Count == 1)
+            if (!isSafe && pioniOponenti.Count == 1)
             {
                 var pionExistent = pioniOponenti[0];
                 container.Controls.Remove(pionExistent);
@@ -272,16 +273,17 @@ namespace Ludo
                     {
                         var casutaDrum = drum[indexDestinatie];
                         Control container = casutaDrum.Panel.GetControlFromPosition(casutaDrum.Column, casutaDrum.Row);
+                        bool isSafe = casutaDrum.IsSafe;
 
                         var pioniExistenti = container.Controls.OfType<PictureBox>().ToList();
                         var pioniOponenti = pioniExistenti.Where(p => managerGrafica.ObtineCuloarePiesa(p) != culoare).ToList();
 
-                        if (pioniOponenti.Count <= 1)
+                        if (pioniOponenti.Count <= 1||isSafe)
                         {
                             mutabili.Add(pion);
                         }
                     }
-                    else if (indexDestinatie == drum.Count)
+                    else if (indexDestinatie == drum.Count - 1) 
                     {
                         mutabili.Add(pion);
                     }

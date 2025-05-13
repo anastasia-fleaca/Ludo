@@ -16,8 +16,7 @@ namespace Ludo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Leaderboard("Anastasia", "Andra", "Diana", "Alexandra"));
-            Application.Run(new Tabla("Anastasia","Andra","Diana","Alexandra"));
+            Application.Run(new Form1());
         }
     }
 }

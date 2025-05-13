@@ -15,7 +15,7 @@ namespace Ludo
         private Form parinte;
         private TableLayoutPanel[] panouri;
         public Dictionary<string, List<PictureBox>> pioniColorati = new Dictionary<string, List<PictureBox>>();
-
+        private Dictionary<string, List<PictureBox>> pioniEtichete = new Dictionary<string, List<PictureBox>>();
         public AfisareTabla(Form formular, params TableLayoutPanel[] panouriTabla)
         {
             parinte = formular;
@@ -88,7 +88,7 @@ namespace Ludo
             cale.Add(new CasutaDrum(p2, 5, 0));
             cale.Add(new CasutaDrum(p2, 4, 0));
             cale.Add(new CasutaDrum(p2, 3, 0));
-            cale.Add(new CasutaDrum(p2, 2, 0));
+            cale.Add(new CasutaDrum(p2, 2, 0, "", true));
             cale.Add(new CasutaDrum(p2, 1, 0));
 
             cale.Add(new CasutaDrum(p2, 0, 0));
@@ -102,7 +102,7 @@ namespace Ludo
             cale.Add(new CasutaDrum(p5, 0, 0));
             cale.Add(new CasutaDrum(p5, 0, 1));
             cale.Add(new CasutaDrum(p5, 0, 2));
-            cale.Add(new CasutaDrum(p5, 0, 3));
+            cale.Add(new CasutaDrum(p5, 0, 3, "", true));
             cale.Add(new CasutaDrum(p5, 0, 4));
             cale.Add(new CasutaDrum(p5, 0, 5));
             cale.Add(new CasutaDrum(p5, 1, 5));
@@ -115,7 +115,7 @@ namespace Ludo
             cale.Add(new CasutaDrum(p3, 0, 2));
             cale.Add(new CasutaDrum(p3, 1, 2));
             cale.Add(new CasutaDrum(p3, 2, 2));
-            cale.Add(new CasutaDrum(p3, 3, 2));
+            cale.Add(new CasutaDrum(p3, 3, 2, "", true));
             cale.Add(new CasutaDrum(p3, 4, 2));
             cale.Add(new CasutaDrum(p3, 5, 2));
             cale.Add(new CasutaDrum(p3, 5, 1));
@@ -128,7 +128,7 @@ namespace Ludo
             cale.Add(new CasutaDrum(p4, 2, 5));
             cale.Add(new CasutaDrum(p4, 2, 4));
             cale.Add(new CasutaDrum(p4, 2, 3));
-            cale.Add(new CasutaDrum(p4, 2, 2));
+            cale.Add(new CasutaDrum(p4, 2, 2, "", true));
             cale.Add(new CasutaDrum(p4, 2, 1));
             cale.Add(new CasutaDrum(p4, 2, 0));
             cale.Add(new CasutaDrum(p4, 1, 0));
@@ -342,7 +342,43 @@ namespace Ludo
                     return null;
             }
         }
+        public void InitializeazaPioniEtichete(Label eticheta, string culoare)
+        {
+            var lista = new List<PictureBox>();
+            for (int i = 0; i < 4; i++)
+            {
+                PictureBox pawn = new PictureBox();
+                pawn.SizeMode = PictureBoxSizeMode.Zoom;
+                pawn.Size = new Size(40, 40);
+                pawn.Image = Image.FromFile($"imagini/PAWN_{culoare}.png");
+                pawn.Visible = false;
 
+                int spacing = 50; 
+                int x = eticheta.Left + i * spacing;
+                int y = eticheta.Bottom + 10;
+                pawn.Location = new Point(x, y);
+
+                parinte.Controls.Add(pawn);
+                lista.Add(pawn);
+            }
+
+            pioniEtichete[culoare.ToUpper()] = lista;
+        }
+        public void AfiseazaPionSubEticheta(string culoare)
+        {
+            culoare = culoare.ToUpper();
+            if (!pioniEtichete.ContainsKey(culoare)) return;
+
+            var lista = pioniEtichete[culoare];
+            foreach (var pawn in lista)
+            {
+                if (!pawn.Visible)
+                {
+                    pawn.Visible = true;
+                    break;
+                }
+            }
+        }
         public string ObtineCuloarePiesa(PictureBox piesa)
         {
             foreach (var kvp in pioniColorati)

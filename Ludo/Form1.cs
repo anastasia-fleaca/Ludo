@@ -36,6 +36,15 @@ namespace Ludo
 
             button1.Size = new Size(newWidth, newHeight);
             button1.Location = new Point(newX, newY);
+
+            int spaceBetween = 20;
+            int button2Width = (int)(newWidth * 0.6);
+            int button2Height = newHeight / 2-5;
+            int button2X = newX + (newWidth - button2Width) / 2;
+            int button2Y = newY + newHeight + spaceBetween;
+
+            button2.Size = new Size(button2Width, button2Height);
+            button2.Location = new Point(button2X, button2Y);
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -51,6 +60,13 @@ namespace Ludo
             this.Hide();
             Players players = new Players();
             players.Show();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Instructiuni instructiuni = new Instructiuni();
+            instructiuni.Show();
+            instructiuni.TopMost = true;
         }
     }
 }
